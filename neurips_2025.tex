@@ -114,14 +114,17 @@ Recent advances in text-to-image (T2I) models have enabled training-free regiona
 %demonstrating superior seamlessness. Our work establishes a flexible, training-free paradigm for high-fidelity regional editing, advancing the practical deployment of T2I models in real-world applications.
 
 
-
-\begin{figure}[t]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.95\linewidth]{figures/fig11.png}
-  %  \caption{(a) Quantitative Comparison of context preservation and text adherence for RFSolver-Edit, KV-Edit, and our proposed CannyEdit, evaluated on 15 examples of adding human subjects. Different points for one method represent different hyperparameter settings. RFSolver-Edit struggles to balance context preservation and text adherence effectively, while KV-Edit achieves a notably improved trade-off. Our CannyEdit method further improves this trade-off, significantly increasing text adherence while maintaining comparable context preservation (the largest point for CannyEdit represents our default setting, and the other two points are created by applying additional blending with the source image on the background regions). (b-e) shows visual examples of different methods: apart from the context preservation and text adherence, we can see that our CannyEdit results in the more natural and seamless editings while KV-Edit's results introduce artifacts such as a {partially cropped subject} in (d.1), and {a partially generated extra cat} in (e.1). }
-  \caption{(a) Quantitative comparison of context preservation vs. text adherence for RFSolver-Edit, KV-Edit, and our CannyEdit on 15 human addition tasks. RFSolver-Edit shows poor balance, KV-Edit improves the trade-off, and CannyEdit achieves the best results—boosting text adherence while preserving context. Different points for one method represent different hyperparameter settings. Largest CannyEdit point denotes default setting; smaller points reflect applying additional blending with the source image on the background regions. (b–e) Visual examples: RFSolver-Edit's outputs fail to balance context preservation and successful addition simultaneously. While KV-Edit and CannyEdit deliver a better trade-off, CannyEdit results in the more natural and seamless editings while KV-Edit's results introduce artifacts such as a {partially cropped subject} in (d.1), and {a partially generated extra cat} in (e.1). .}
-    \label{fig2}
+    \includegraphics[width=0.5\linewidth]{figures/fig111.png}
+    \caption{make a figure of examples if space allowed}
+    \label{fig11}
 \end{figure}
+
+
+
+
+
 
 %
 %\begin{figure}[t]
@@ -137,7 +140,9 @@ Recent advances in text-to-image (T2I) models have enabled training-free regiona
 
 
 
-Recent advances in text-to-image (T2I) models have achieved substantial progress in quality and controllability \citep{rombach2022high,betker2023improving,chen2023pixart,esser2024scaling,blackforest2024FLUX}. These advancements have enabled diverse downstream applications, utilizing their enhanced quality, efficiency, and versatility. In this work, we address one of the most challenging applications: {region-based image editing}, which entails modifying user-specified areas (e.g., adding, replacing, or removing objects) within an image while maintaining {overall image consistency}. This task extends standard T2I generation by introducing a critical constraint: the model must synthesize content that aligns not only with the text prompt but also with the existing visual context of the image.
+Recent advances in text-to-image (T2I) models have achieved substantial progress in quality and controllability \citep{rombach2022high,betker2023improving,chen2023pixart,esser2024scaling,blackforest2024FLUX}. These advancements have enabled diverse downstream applications, utilizing their enhanced quality, efficiency, and versatility. In this work, we address one of the most challenging applications: \emph{region-based image editing}, which entails modifying user-specified areas (e.g., adding, replacing, or removing objects) within an image while maintaining {overall image consistency}.
+Region-based image editing extends standard T2I generation by introducing a critical constraint: the generated content must align not only with the text prompt \kc{(\textbf{\textit{Text Adherence}})} but also with the existing visual context of the image \kc{(\textbf{\textit{Context Fidelity}})}.
+\kc{This problem is commonly known as the \textit{editability-fidelity trade-off}}.
 
 
 %\kc{[``region-based'' seems more prevalent in the literature]} 
@@ -153,20 +158,30 @@ A straightforward approach to region-based image editing involves collecting pai
 \end{cyanpar}
 
 % \sout{Consequently, by tapping into foundation T2I models’ ability to capture realistic object interactions from large-scale datasets, another line of research explores using these foundation models for regional editing in a training-free manner.}
-{To overcome this limitation, another line of research taps into the capability of foundation T2I models to capture realistic object interactions learned from large-scale datasets. These methods are mostly designed to be training-free, hoping to fully preserve the robustness of the foundation models.}
+To overcome this limitation, another line of research taps into the emergent capability of foundation T2I models to capture realistic object interactions learned from large-scale datasets.
+The proposed methods are mostly designed to be training-free, hoping to fully preserve the robustness of the foundation models.
 % Initially based on 
-While these methods were initially developed using UNet-based diffusion models \citep{hertz2022prompt, cao2023masactrl, tumanyan2023plug}, recent work has shifted to leveraging more advanced rectified-flow-based multi-modal diffusion transformers (MM-DiTs) \citep{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv}.
+\sout{While these methods were initially developed using UNet-based diffusion models \citep{hertz2022prompt, cao2023masactrl, tumanyan2023plug}, recent work has shifted to leveraging more advanced rectified-flow-based multi-modal diffusion transformers (MM-DiTs) \citep{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv}.}
+\kc{These training-free approaches are initially developed upon UNet-based diffusion models~\citep{hertz2022prompt, cao2023masactrl, tumanyan2023plug}, and has gradually shifted to leveraging more advanced rectified-flow-based multi-modal diffusion transformers (MM-DiTs)~\citep{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv}.
+The transformer architecture 
+These methods primarily rely on injecting the source image's attention features (obtained via inversion \citep{deng2024fireflow,rout2024semantic,wang2024taming}) into the generation of the edited image, improving context fidelity.}
 
 
-
-The newer DiT-based methods have demonstrated enhanced editing performance and greater flexibility compared to earlier approaches, leveraging the stronger generative capabilities of their base models. These methods primarily rely on injecting the source image's attention features (obtained via inversion \citep{deng2024fireflow,rout2024semantic,wang2024taming}) into the generation of the edited image. While effective in certain cases, they face a critical challenge: balancing precise modifications to specific regions based on the target text prompt (\textbf{\textit{Text Adherence}}) while preserving the integrity of unedited areas (\textbf{\textit{Context Fidelity}}). This issue is termed the \textit{editability-fidelity trade-off}.  We show here that attaining an acceptable trade-off could be \textbf{infeasible} \kc{[``infeasible'' is a strong word]} for these methods, examplified by RFSolver-Edit \citep{wang2024taming}. Figure \ref{fig2}(a) presents quantitative results evaluating context fidelity and text adherence\footnote{Context fidelity is measured via cosine similarity of DINO embeddings \citep{caron2021emerging} between source and edited images. Text adherence is quantified as \( p_{\text{gdino}}(\text{edited}) - p_{\text{gdino}}(\text{source}) \), where \( p_{\text{gdino}} \) denotes GroundingDINO's \citep{liu2024grounding} top-1 bounding box probability for the added subject.} for 15 editing examples of inserting a human subject into real-world images (Figure \ref{fig2}(b) provides a test example). The result shows that, under different attention injection steps of source image's features, RFSolver-Edit's outputs either adhere well to the text or preserve image context effectively, but no configuration achieves a strong balance. Visual examples of edits under different steps are shown in Figures \ref{fig2}(c.1–c.6). The root cause of this imbalance lies in the mixed visual information encoded in the source image's attention features. While injecting these features offers flexibility, it lacks precise control over what to modify or preserve.
+\sout{The newer DiT-based methods have demonstrated enhanced editing performance and greater flexibility compared to earlier approaches, leveraging the stronger generative capabilities of their base models. These methods primarily rely on injecting the source image's attention features (obtained via inversion \citep{deng2024fireflow,rout2024semantic,wang2024taming}) into the generation of the edited image. While effective in certain cases, they face a critical challenge: balancing precise modifications to specific regions based on the target text prompt (\textbf{\textit{Text Adherence}}) while preserving the integrity of unedited areas (\textbf{\textit{Context Fidelity}}). This issue is termed the \textit{editability-fidelity trade-off}.}
+We show here that attaining an acceptable trade-off could be \textbf{infeasible} \kc{[``infeasible'' is a strong word]} for these methods, examplified by RFSolver-Edit \citep{wang2024taming}. Figure \ref{fig2}(a) presents quantitative results evaluating context fidelity and text adherence\footnote{Context fidelity is measured via cosine similarity of DINO embeddings \citep{caron2021emerging} between source and edited images. Text adherence is quantified as \( p_{\text{gdino}}(\text{edited}) - p_{\text{gdino}}(\text{source}) \), where \( p_{\text{gdino}} \) denotes GroundingDINO's \citep{liu2024grounding} top-1 bounding box probability for the added subject.} for 15 editing examples of inserting a human subject into real-world images (Figure \ref{fig2}(b) provides a test example). The result shows that, under different attention injection steps of source image's features, RFSolver-Edit's outputs either adhere well to the text or preserve image context effectively, but no configuration achieves a strong balance. Visual examples of edits under different steps are shown in Figures \ref{fig2}(c.1–c.6). The root cause of this imbalance lies in the mixed visual information encoded in the source image's attention features. While injecting these features offers flexibility, it lacks precise control over what to modify or preserve.
 
 %We attribute the root cause of this inability to achieve a strong balance to the mixed nature of visual information encoded in the source image's attention features. While editing through the injection of such features offers flexibility, it falls short in providing precise control over which visual information should be modified and which should remain intact.
 
 To achieve a better balance, KV-Edit \citep{zhu2025kv} introduces user-provided masks to separate edited and unedited regions during attention computation, updating features only in the edited region while preserving those of the unedited region from the source image. While improving the trade-off (orange points in Figure \ref{fig2}(a)), this approach can produce artifacts due to a disconnection between the background and edited regions, as seen in the partially cut subjects in Figure \ref{fig2}(d.1) and the extra cat in Figure \ref{fig2}(e.1). The imperfection highlights a critical editing quality aspect: \textbf{\textit{Editing Seamlessness}}, where such disconnections hinder seamless integration. \textcolor{orange}{We trace the origin of these disconnectivity artifacts in KV-Edit to its hard replacement strategy for background features. By overwriting unedited regions with frozen source image's feature, the method disregards the interdependencies necessary for smooth boundary transitions.}
 
 
-
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/fig11.png}
+  %  \caption{(a) Quantitative Comparison of context preservation and text adherence for RFSolver-Edit, KV-Edit, and our proposed CannyEdit, evaluated on 15 examples of adding human subjects. Different points for one method represent different hyperparameter settings. RFSolver-Edit struggles to balance context preservation and text adherence effectively, while KV-Edit achieves a notably improved trade-off. Our CannyEdit method further improves this trade-off, significantly increasing text adherence while maintaining comparable context preservation (the largest point for CannyEdit represents our default setting, and the other two points are created by applying additional blending with the source image on the background regions). (b-e) shows visual examples of different methods: apart from the context preservation and text adherence, we can see that our CannyEdit results in the more natural and seamless editings while KV-Edit's results introduce artifacts such as a {partially cropped subject} in (d.1), and {a partially generated extra cat} in (e.1). }
+  \caption{(a) Quantitative comparison of context preservation vs. text adherence for RFSolver-Edit, KV-Edit, and our CannyEdit on 15 human addition tasks. RFSolver-Edit shows poor balance, KV-Edit improves the trade-off, and CannyEdit achieves the best results—boosting text adherence while preserving context. Different points for one method represent different hyperparameter settings. Largest CannyEdit point denotes default setting; smaller points reflect applying additional blending with the source image on the background regions. (b–e) Visual examples: RFSolver-Edit's outputs fail to balance context preservation and successful addition simultaneously. While KV-Edit and CannyEdit deliver a better trade-off, CannyEdit results in the more natural and seamless editings while KV-Edit's results introduce artifacts such as a {partially cropped subject} in (d.1), and {a partially generated extra cat} in (e.1). .}
+    \label{fig2}
+\end{figure}
 
 %(RFSolver-Edit: attention injection steps; KV-Edit: skip steps, reinitialization).
 
@@ -425,7 +440,7 @@ back to its latent representations. We denote the sample at each timestep obtain
 %Unlike the inversion process that adds the full Canny ControlNet's outputs to the FLUX model, we propose selective Canny control via a user-provided mask in the denoising generation process of the edited region. This approach helps provide structural guidance for the unedited region while allowing editability in the desired area (detailed in Section \ref{sec:cannycontrol}). With the structural relaxation through selective Canny control on the desired edit region, the text signal becomes crucial for directing the edits. We introduce a dual-prompt strategy that employs local prompts and a global target prompt to maintain both text-aligned and harmonious editing results, which will be further explained in Section \ref{sec:dualprompt}.
 
 
-Since our method leverages Canny ControlNet, we integrate it into the inversion process. Specifically, we cache the source image's Canny ControlNet outputs, $\tilde{h}^{\prime}_{\text{img}}$, at each block and timestep throughout denoising\footnote{Block index and timestep notation are omitted for simplicity.}. The inverted noise, $\mathbf{x}_{t_N}$, then serves as the initialization for generating the edited image. The immediate inverted noise latent $\mathbf{x}_t$ at each timestep $t$ can also be optionally cached for preserving the background context.  
+Since our method leverages Canny ControlNet, we integrate it into the inversion process. Specifically, we cache the source image's Canny ControlNet outputs, $\tilde{h}^{\prime}_{\text{img}}$,\footnote{Block index and timestep notation are omitted for simplicity.} at each block and timestep throughout denoising. The inverted noise, $\mathbf{x}_{t_N}$, then serves as the initialization for generating the edited image.\footnote{The immediate inverted noise latent $\mathbf{x}_t$ at each timestep $t$ can also be optionally cached for enhancing the preservation of image context.}
 
 
 Unlike the inversion process, which adds the full Canny ControlNet outputs to the FLUX model, during the denoising for generating the edited image, we propose selective Canny control: given a user-provided mask indicating the edit region, the cached Canny ControlNet outputs in the unedited region are added into the FLUX model, while those in the edited region are masked out (detailed in Section \ref{sec:cannycontrol}). With the structural relaxation in the edit region, the text signal becomes crucial for directing the edits. We introduce a dual-prompt strategy that uses local prompts and a global target prompt to maintain text alignment and harmonious editing results, further explained in Section \ref{sec:dualprompt}.
@@ -525,7 +540,7 @@ where $\mathcal{M}$ is a self-attention mask between the concatenated image-text
         \mathcal{M}_{T2I} &  \mathcal{M}_{T2T}
     \end{bmatrix}
 \end{equation*}
-For the text-to-text (T2T) attention, To prevent information leakage of local guidance, each text prompt is restricted to attend only to its own tokens. We enforce this by using a block-diagonal attention mask: $\mathcal{M}_{T2T}=diag(\mathbf{1}_{|T_1|^2}, \mathbf{1}_{|T_2|^2},\mathbf{1}_{|T^\star|^2})$, whose diagonal blocks are all-ones matrices that enable full self-attention inside each individual prompt. %while all off-diagonal blocks are zero (masked), disabling any cross-prompt interaction.
+For the text-to-text (T2T) attention, To prevent information leakage of local guidance, each text prompt is restricted to attend only to its own tokens. We enforce this by using a block-diagonal attention mask: $\mathcal{M}_{T2T}=diag(\mathbf{1}_{|T_1|^2}, \mathbf{1}_{|T_2|^2},\mathbf{1}_{|T^\star|^2})$, where the diagonal blocks  in the block-wise diagonal matrix $diag(\cdot,\cdot,\cdot)$ are all-ones matrices that enable full self-attention inside each individual prompt, while all off-diagonal blocks are zero (masked), disabling cross-prompt interactions.
 
 
 For the attention between the text and the image (T2I), as we intend to use local prompts to provide guidance for specific region, and use a global target prompt to pass the interaction information among different regions, the $\mathcal{M}_{T2I}$ is designed to be:
@@ -536,7 +551,7 @@ For the attention between the text and the image (T2I), as we intend to use loca
          \mathbf{1}_{|T^\star|\times|I_1|} &  \mathbf{1}_{|T^\star|\times|I_2|}
     \end{bmatrix},
 \end{equation*}
-and we let the $\mathcal{M}_{I2T}=(\mathcal{M}_{T2I})^T$, , allowing the bidirectional flow of information between the image and text modalities.
+and we let the $\mathcal{M}_{I2T}=(\mathcal{M}_{T2I})^T$, allowing the bidirectional flow of information between the image and text modalities.
 
 For the attention among image tokens (I2I), in default we allow attention only within each region: $\mathcal{M}_{I2I}=diag(\mathbf{1}_{|I_1|^2}, \mathbf{1}_{|I_2|^2})$, maintaining the integrity of region-specific edits.
 
@@ -545,26 +560,48 @@ For the attention among image tokens (I2I), in default we allow attention only w
 
 
 
-In default the $\mathcal{M}_{I2I}$ is designed to function as a block-diagonal attention mask when all regions are considered editable. In practical editing tasks, this design can be adjusted based on the nature of different regions. For instance, in the case of adding new content where one of the regions is the background region (e.g., $I_1=I_{bg}$, $I_2=I_{edit}$), and we aim to preserve its context, the local prompt for the background region could be taken as the source prompt, $T_1=P_\text{source}$. In this scenario, the $\mathcal{M}_{I2I}$ can be modified as follows:
-\begin{equation*}
-    \mathcal{M}_{I2I} = diag(\mathbf{1}_{|I_\text{bg}|^2}, \mathbf{1}_{|I_\text{edit}|^2})+ \begin{bmatrix}
+In default the $\mathcal{M}_{I2I}$ is designed to function as a block-diagonal attention mask when all regions are considered editable. In the practical implementation of editing tasks, this design can be adjusted based on the nature of the regions. For instance, in the case of adding new content where one of the regions is the background region (e.g., $I_1=I_{bg}$, $I_2=I_{edit}$) where we aim to preserve its context, the local prompt for the background region could be taken as the source prompt, $T_1=P_\text{source}$. In this scenario, the $\mathcal{M}_{I2I}$ can be modified as follows:
+
+\resizebox{0.95\textwidth}{!}{
+\begin{equation}
+    \mathcal{M}_{I2I}(I_\text{bg}, I_\text{edit}) = diag(\mathbf{1}_{|I_\text{bg}|^2}, \mathbf{1}_{|I_\text{edit}|^2})+ \begin{bmatrix}
         \mathbf{0}_{|I_\text{bg}|\times|I_\text{bg}|} &  \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit}|}\\
-        \mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|} &  \mathbf{0}_{|I_\text{edit}|\times|I_\text{edit}|}\\
+        \mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|} &  \mathbf{0}_{|I_\text{edit}|\times|I_\text{edit}|}
+    \end{bmatrix}=
+    \begin{bmatrix}
+        \mathbf{1}_{|I_\text{bg}|\times|I_\text{bg}|} &  \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit}|}\\
+        \mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|} &  \mathbf{1}_{|I_\text{edit}|\times|I_\text{edit}|}
     \end{bmatrix},
-\end{equation*}
-where the addition of $\mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|}$ allow the edited region $I_2$ attends to the background region. This adjustment allows the model to integrate contextual information from the background region into the edited region, allowing the more context-aware edit. This approach can be simply extended to multiple editable regions while preserving the background. In such cases, the $\mathcal{M}_{I2I}$ can be generalized as:
-\begin{equation*}
-\mathcal{M}_{I2I} = {diag}(\mathbf{1}_{|I_\text{bg}|^2}, \mathbf{1}_{|I_{\text{edit1}}|^2}, \dots, \mathbf{1}_{|I_{\text{editn}}|^2}) + \begin{bmatrix}
-\mathbf{0}_{|I_\text{bg}|\times|I_\text{edit1}|} & \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{bg}|\times|I_\text{editn}|} \\
-\mathbf{1}_{|I_\text{edit1}|\times|I_\text{bg}|} & \mathbf{0}_{|I_\text{edit1}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{edit1}|\times|I_\text{editn}|} \\
-\vdots & \vdots & \ddots & \vdots \\
-\mathbf{1}_{|I_\text{editn}|\times|I_\text{bg}|} & \mathbf{0}_{|I_\text{editn}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{editn}|\times|I_\text{editn}|}
-\end{bmatrix}
-\end{equation*}
+    \label{eq:i2i_1}
+\end{equation}}
 
+where the addition of $\mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|}$ allow the edited region $I_\text{edit}$ attends to the background region. This adjustment allows the model to integrate contextual information from the background region into the edited region, allowing the more context-aware edit. 
 
-The local prompts used in different editing tasks differ. In the adding and replacement task, the local prompts represent the objects to add or to replace the existing objects. In the removal task, we use ``empty background'' as the local prompt in default. To more effectively eliminate existing objects, we apply class-free guidance \citep{ho2022classifier}, which incorporates descriptions of the target removal objects as negative local prompts, thereby enhancing their suppression during the editing process.
-The more details of the application of our proposed techniques to different editing tasks are given in \textcolor{red}{Appendix B}.
+To seamlessly blend the edited and background areas, we further refine the I2I attention related to the background region near the boundary of the edited part. The region is denoted as ${I}_{\text{bg(bd)}}$ and the region not in the boundary as ${I}_{\text{bg(nbd)}}$. Define the $\mathcal{M}_{I2I}(I_\text{bg(nbd)},I_\text{bg(bd)}, I_\text{edit})$ as:
+\begin{equation}
+\mathcal{M}_{I2I}(I_\text{bg(nbd)},I_\text{bg(bd)}, I_\text{edit}) =   \begin{bmatrix}
+        \mathbf{1}_{|I_\text{bg(nbd)}|\times|I_\text{bg(nbd)}|} &  \mathbf{1}_{|I_\text{bg(nbd)}|\times|I_\text{bg(bd)}|}&\mathbf{0}_{|I_\text{bg(nbd)}|\times|I_\text{edit}|}\\
+
+\mathbf{1}_{|I_\text{bg(bd)}|\times|I_\text{bg(nbd)}|} &  \mathbf{1}_{|I_\text{bg(bd)}|\times|I_\text{bg(bd)}|}&\boxed{\mathbf{1}_{|I_\text{bg(bd)}|\times|I_\text{edit}|}}\\
+\mathbf{1}_{|I_\text{edit}|\times|I_\text{bg(nbd)}|} &  \mathbf{1}_{|I_\text{edit}|\times|I_\text{bg(bd)}|}&\mathbf{1}_{|I_\text{edit}|\times|I_\text{edit}|}\\
+    \end{bmatrix}.
+\label{eq:i2i_2}
+\end{equation}
+The change from Equation (\ref{eq:i2i_1}) to Equation (\ref{eq:i2i_2}) lies in the boxed term$\boxed{\mathbf{1}_{|I_\text{bg(bd)}|\times|I_\text{edit}|}}$. With this modification, background region on the boundary of the mask region can now attends to the edit region,  enabling the model to  incorporate contextual cues from the edited region into the boundary areas. As a result, the boundary areas can better align visually and semantically with the edits, reducing artifacts and improving the overall coherence of the image.
+
+% This approach can be simply extended to multiple editable regions while preserving the background:
+% \begin{equation*}
+% \mathcal{M}_{I2I} = {diag}(\mathbf{1}_{|I_\text{bg}|^2}, \mathbf{1}_{|I_{\text{edit1}}|^2}, \dots, \mathbf{1}_{|I_{\text{editn}}|^2}) + \begin{bmatrix}
+% \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit1}|} & \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{bg}|\times|I_\text{editn}|} \\
+% \mathbf{1}_{|I_\text{edit1}|\times|I_\text{bg}|} & \mathbf{0}_{|I_\text{edit1}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{edit1}|\times|I_\text{editn}|} \\
+% \vdots & \vdots & \ddots & \vdots \\
+% \mathbf{1}_{|I_\text{editn}|\times|I_\text{bg}|} & \mathbf{0}_{|I_\text{editn}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{editn}|\times|I_\text{editn}|}
+% \end{bmatrix}
+% \end{equation*}
+\subsubsection{Prompting for different editing tasks}
+
+The local prompts vary across different editing tasks. In addition and replacement tasks, the local prompts specify the objects to be added or those replacing the existing ones. For removal tasks, we default to using ``empty background" as the local prompt. To more effectively remove existing objects, we employ class-free guidance \citep{ho2022classifier}, incorporate descriptions of the target objects to be removed as negative local prompts, thereby improving their suppression during editing. Further details on the application of our proposed techniques to various editing tasks are in \textcolor{red}{Appendix B}.
+% Furthermore, the local prompts used in different editing tasks differ. In the adding and replacement task, the local prompts represent the objects to add or to replace the existing objects. In the removal task, we use ``empty background'' as the local prompt in default. To more effectively eliminate existing objects, we apply class-free guidance \citep{ho2022classifier}, which incorporates descriptions of the target removal objects as negative local prompts, thereby enhancing their suppression during the editing process. The more details of the application of our proposed techniques to different editing tasks are given in \textcolor{red}{Appendix B}.
 
 % The application of the techniques to other editing tasks, like in the replacement and removal, requires some other minor tweaking. For instance, in the replacement and removal, there is no readily available description for the background region (the source prompt is not aligned with the background region), we do not apply a local prompt for the background area and only apply local prompts to the edit area. The local 
 
@@ -726,47 +763,50 @@ The more details of the application of our proposed techniques to different edit
 
 \subsection{Experimental setup}
 
-\textbf{Baselines.} Two kinds of methods are compared with CannyEdit: (1) Training-based approaches including BrushEdit~\cite{li2024brushedit} based on UNet diffusion models, FLUX Fill~\cite{blackforest2024FLUX} and PowerPaint-FLUX~\cite{zhuang2023task} based on FLUX~\cite{blackforest2024FLUX}. (2) Training-free approaches including P2P~\cite{hertz2022prompt}, MasaCtrl~\cite{cao2023masactrl} based on UNet diffusion models, and RFSolver-Edit~\cite{wang2024taming}, RF-Inversion~\cite{rout2024semantic}, KV-Edit~\cite{zhu2025kv} based on FLUX. In summary, there are eight prevalent image inpainting and editing methods for evaluation. The original PowerPaint is based on UNet diffusion model, for fairness, we trained a new version based on FLUX with the same datasets.
+\textbf{Baselines.} Two kinds of methods are compared with CannyEdit: (1) Training-based approaches including BrushEdit~\cite{li2024brushedit} based on UNet diffusion models, FLUX Fill~\cite{blackforest2024FLUX} and PowerPaint-FLUX~\cite{zhuang2023task} based on FLUX~\cite{blackforest2024FLUX}. The original Note that the PowerPaint in ~\cite{blackforest2024FLUX} is based on UNet diffusion model, for a fairer comparison, we trained a new version based on FLUX with the provided training dataset. (2) Training-free approaches including P2P~\cite{hertz2022prompt}, MasaCtrl~\cite{cao2023masactrl} based on DDIM \citep{song2022denoisingdiffusionimplicitmodels}, and RF-inversion ~\cite{wang2024taming} RFSolver-Edit~\cite{wang2024taming}, RF-Inversion~\cite{rout2024semantic}, KV-Edit~\cite{zhu2025kv} based on Rectified
+Flow. %In summary, there are eight prevalent image inpainting and editing methods for evaluation. 
+
+\textbf{Datasets.} In this work, we focus on real-world image editing scenarios that involve complex interactions between the edited region and the surrounding image context, often resulting in significant changes to the overall image layout. However, existing real-world image benchmarks~\citep{sheynin2024emu,gu2024multi} primarily involve edits to minor objects and lack realistic interactions among objects (e.g., ``add a glass of water on the table''). To address this limitation, we introduce the \textbf{R}eal \textbf{I}mage \textbf{C}omplex \textbf{E}diting Benchmark (\textbf{RICE-Bench}), designed to better evaluate \textit{Context Fidelity}, \textit{Text Adherence}, and \textit{Editing Seamlessness} in real-world editing tasks. RICE-Bench consists of 80 images depicting real scenes and complex editing scenarios, including 30 for object addition, and 25 each for object replacement and removal. Example images from the benchmark are shown in \textcolor{red}{Figure~XX}, with additional samples provided in \textcolor{red}{Appendix~XX} and the supplementary material. Besides, following previous methods, we also take evaluation on PIE-Bench~\cite{ju2024pnp}, which consists of 620 real-world and synthetic images with corresponding text prompts and masks, belonging to 9 different editing tasks. Following \cite{li2024brushedit, xu2023infedit, zhu2025kv}, the style transfer task is excluded from PIE-bench, because our main point is on region-based image editing.
+
+\textbf{Implementation Details.} We implement our method based on FLUX.1-[dev]~\cite{blackforest2024FLUX} and FLUX-controlnet-Canny~\cite{xlabsai2025fluxcontrolnet}. Most hyperparameters are consistent with FLUX-controlnet-Canny, using 50 denoising steps in total and guidance value as 4.0. For RICE-Bench, we resize images to resolution of 1024, while 512 in PIE-Bench. More implementation details including the use of machines and the detailed hyperparameters are provided in \textcolor{red}{Appendix~XX}.
+
+\textbf{Metrics.} For RICE-Bench, we evaluate edits using two primary metrics: \textbf{Context Preservation (CP)} and \textbf{Text Adherence (TA)}. CP is quantified by calculating the cosine similarity between the DINO embeddings~\citep{caron2021emerging} of the original and edited images. TA measures how successfully the edited image follows the provided textual instruction, utilizing GroundingDINO~\citep{liu2024grounding} bounding-box prediction confidence. Specifically, for {addition} and {replacement} editing (where subject \(A\) is inserted into or replaces an existing subject, TA is computed as: $\text{TA} = p_{\text{gdino}}(\text{edited}, A) - p_{\text{gdino}}(\text{original}, A)$ where \(p_{\text{gdino}}(\text{image}, A)\) indicates GroundingDINO's~\citep{liu2024grounding} top-1 bounding-box probability for the subject \(A\) indicated in the editing prompt. For {removal} instructions (where subject \(A\) is to be removed from the image), TA is inversely defined as: $\text{TA} = p_{\text{gdino}}(\text{original}, A) - p_{\text{gdino}}(\text{edited}, A)$. Additionally, we introduce the \textbf{Trade-off Score (TO Score)} to comprehensively assess the balance between editability and fidelity, calculated as the sum of CP and TA:$\text{TO Score} = \text{CP} + \text{TA}$. To evaluate the editing seamlessness, we designed and conducted a user study comparing the extent to which users can discern whether results from different methods have been edited by AI.
+
+%based on editing results from different methods and ground-truth editing results (a subset of evaluation source images (30) is created by manually removing a subject from the image and thus the target image 
 
 
-\textbf{Datasets.} Considering challenges and real demands in regional-specific image editing, we manipulate a \textbf{R}eal \textbf{I}mage \textbf{C}omplexly \textbf{E}diting Benchmark(RICE-Bench) for better evaluating Context Fidelity, Text Adherence and Editing Seamlessness. In total, it includes around 80 images focusing on real scenes and complex editing scenarios. Besides, following previous methods, we also take evaluation on PIE-Bench~\cite{ju2024pnp}, which consists of 620 images with corresponding text prompts and masks, belonging to 9 different editing tasks. Following \cite{li2024brushedit, xu2023infedit, zhu2025kv}, the style transfer task is excluded from PIE-bench, because our main point is on regional-specific image editing.
-
-\textbf{Implementation Details.} We implement our method based on FLUX.1-[dev]~\cite{blackforest2024FLUX} and FLUX-controlnet-Canny~\cite{xlabsai2025fluxcontrolnet}. Most hyperparameters are consistent with FLUX-controlnet-Canny, using 50 timesteps in total and guidance value as 4.0. For RICE-Bench, we resize images to resolution of 1024, while 512 in PIE-Bench.
-
-\textbf{Metrics.} For RICE-Bench, we take Context Preservation(CP) and Text Adherence(TA) as metrics. CP is measured via DINO embedding \citep{caron2021emerging} cosine similarity between source and edited images, while TA calculates \( p_{\text{gdino}}(\text{edited}) - p_{\text{gdino}}(\text{original}) \) \textcolor{red}{(absolute value?)}, where \( p_{\text{gdino}} \) denotes GroundingDINO's \citep{liu2024grounding} top-1 bounding box probability for the subject (e.g., ``a lady'' in the given example of Figure~\ref{fig2}(b)). Besides, Trade-off Score(TO Score) is utilized to comprehensively measure the trade-off for editability and fidelity, which sums up CP and TA. For PIE-Bench, we follow \cite{zhu2025kv} to report seven metrics. HPSv2~\cite{wu2023human} and aesthetic scores~\cite{schuhmann2022laionb} are for image quality. PSNR~\cite{huynh2008scope}, LPIPS~\cite{zhang2018perceptual} and MSE are for background preservation. For text-visual alignment, we show CLIP score~\cite{radford2021learning} and Image Reward~\cite{xu2023imagereward}.
+For PIE-Bench, we follow the methodology in \cite{zhu2025kv} and report seven metrics: For image quality, we use HPSv2 \citep{wu2023human} and aesthetic scores \citep{schuhmann2022laionb}. For background preservation accuracy, we adopt PSNR \citep{huynh2008scope}, LPIPS \citep{zhang2018perceptual}, and MSE. For text adherence, we use CLIP score \citep{radford2021learning} and Image Reward \citep{xu2023imagereward}.
 
 \subsection{Experiment results on RICE-bench}
 
-\begin{table*}[h]
+\begin{table*}[t]
 \begin{center} 
 \footnotesize
 \setlength{\tabcolsep}{1.70mm} %
-\caption{\textbf{Automatically computed metrics comparing with representative methods on RICE-Bench.}. RFSolver-Edit and KV-Edit are training-free flow-based methods. The inject denotes the number of denoising steps where attention feature injection is applied. BrushEdit, Powerpaint-FLUX and FLUX Fill represent training-based methods. The metrics are Context Preservation(CP) and Text Adherence(TA). TO Score measures the trade-off for editability and fidelity, which sums up CP and TA across 3 editing tasks. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
+\caption{\textbf{Automatically computed metrics comparing with representative methods on RICE-Bench.}.  The inject for RFSolver-Edit denotes the number of denoising steps where attention feature injection is applied. The metrics are Context Preservation(CP) and Text Adherence(TA). TO Score measures the trade-off for editability and fidelity, which sums up CP and TA across 3 editing tasks. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
 \begin{tabular}{l|cc|cc|cc|c}
 \toprule
 \multirow{2}{*}[0.8ex]{Editing Tasks} & \multicolumn{2}{c|}{Add} & \multicolumn{2}{c|}{Removal} &\multicolumn{2}{c|}{Replace} & Summary\\
 \midrule
  Metrics & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & TO Score\\
 \midrule
-RFSolver-Edit($\textup{inject}=2$)~\cite{wang2024taming} & 71.77 & 22.65 & 42.99 & \textbf{39.05} & 47.44 & 9.22 & 233.1\\
-RFSolver-Edit($\textup{inject}=8$)~\cite{wang2024taming} & \textbf{99.13} & 2.14 & \textbf{79.34} & 2.94 & \textbf{67.89} & 5.03 & 256.5\\
-KV-Edit~\cite{zhu2025kv} & \underline{93.91} & 17.25 & \underline{69.81} & 16.62 & \underline{64.72} & \underline{12.36} & \underline{274.7}\\
+RFSolver-Edit($\textup{inject}=2$)~\cite{wang2024taming} & 71.77 & 22.65 & 42.99 & {39.05} & 47.44 & 9.22 & 233.1\\
+RFSolver-Edit($\textup{inject}=8$)~\cite{wang2024taming} & {99.13} & 2.14 & {79.34} & 2.94 & {67.89} & 5.03 & 256.5\\
+KV-Edit~\cite{zhu2025kv} & {93.91} & 17.25 & {69.81} & 16.62 & {64.72} & {12.36} & \underline{274.7}\\
 BrushEdit~\cite{li2024brushedit} & 87.26 & 18.98 & 63.43 & 31.29 & 59.11 & 7.40 & 267.5\\
 FLUX Fill~\cite{blackforest2024FLUX} & & & & & & & \\
-Powerpaint-FLUX~\cite{zhuang2023task} & 84.63 & \underline{24.34} & 62.31 & 21.40 & 60.75 & 8.92 & 262.4\\
+Powerpaint-FLUX~\cite{zhuang2023task} & 84.63 & {24.34} & 62.31 & 21.40 & 60.75 & 8.92 & 262.4\\
 \midrule
-\textbf{CannyEdit(Ours)} & 88.72 & \textbf{28.12} & 61.28 & \underline{34.22} & 62.43 & \textbf{16.77} & \textbf{291.5}\\
+\textbf{CannyEdit(Ours)} & 88.72 & {28.12} & 61.28 & {34.22} & 62.43 & {16.77} & \textbf{291.5}\\
 \bottomrule
 \end{tabular}
 \label{tab:rice-comparison} 
 \end{center}
-\end{table*}
 
-\begin{table*}[h]
 \begin{center} 
 \footnotesize
 \setlength{\tabcolsep}{1.85mm} %
-\caption{\textbf{Human study comparing with representative methods on RICE-Bench.}. KV-Edit is training-free flow-based method. BrushEdit and Powerpaint-FLUX are training-based methods. General Public means participants have no expertise in AI image generation. Expert denotes participants have at least some basic knowledge. Gen denotes images are generated by different editing methods. GT means samples are ground truth images. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.\textcolor{red}{[will report 95\% CI]}}
+\caption{\textbf{user study comparing with representative methods on RICE-Bench.}.  General Public means participants have no expertise in AI image generation. Expert denotes participants have at least some basic knowledge. Gen denotes images are generated by different editing methods. GT means samples are ground truth images. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.\textcolor{red}{[will report 95\% CI]}}
 \begin{tabular}{l|cc|cc|cc|cc}
 \toprule
 \multirow{2}{*}[0.8ex]{Group} & \multicolumn{4}{c|}{General Public(96 participants)} & \multicolumn{4}{c}{Expert(41 participants)} \\
@@ -789,9 +829,11 @@ Powerpaint-FLUX~\cite{zhuang2023task} & \underline{76.08} & \underline{23.91} & 
 \end{table*}
 
 
-According to Table~\ref{tab:rice-comparison}, we present comparison with other methods in automatically computed metrics. Across three editing tasks, CannyEdit can maintain a high-level of CP while TA achieves the best in Add and Replace, and second in Removal. Although a variant(inject=2) of RFSolver-Edit is the first in TA, it has a poor corresponding performance of CP, which indicates that it generates many samples having little connection with original image. To better measure the trade-off between editability and fidelity, we sum up CP and TA across three tasks as the TO score. Clearly, CannyEdit saliently outperforms others with a new level of balance.
+According to Table~\ref{tab:rice-comparison}, 
 
-Besides, we designed a simple and ingenious human study to systematically measure seamlessness in Regional-specific image editing. The result is shown in Table~\ref{tab:rice-human-study}. In total, we invited 135 participants. In view of their diverse background, they are divided into two groups, General Public and Expert. General Public means participants have no expertise in AI image generation. Expert denotes participants have at least some basic knowledge. Each group is asked to finish the same two tasks. For Task 1, each question randomly sampling a pair of images, which includes a generated(Gen) sample by different editing methods and a ground-truth(GT) real image respectively. The participant needs to answer which one has been more likely edited by an AI model. In Task 2, different from previous one, a pair of images consists of a sample generated by CannyEdit(our method) and a sample from other editing methods based on the same source image and editing instruction. The participant should choose which one has been more likely edited by an AI model. Such a design can help participants concentrate more on intuitive visual sensation rather than worry about additional semantic information utilized in \cite{zhu2025kv}, which deteriorates stability of feedback. \textcolor{red}{Some examples of question are shown in Appendix.}
+%we present comparison with other methods in automatically computed metrics. Across three editing tasks, CannyEdit can maintain a high-level of CP while TA achieves the best in Add and Replace, and second in Removal. Although a variant(inject=2) of RFSolver-Edit is the first in TA, it has a poor corresponding performance of CP, which indicates that it generates many samples having little connection with original image. To better measure the trade-off between editability and fidelity, we sum up CP and TA across three tasks as the TO score. Clearly, CannyEdit saliently outperforms others with a new level of balance.
+
+Besides, we designed a simple and ingenious user study to systematically measure seamlessness in region-based image editing. The result is shown in Table~\ref{tab:rice-human-study}. In total, we invited 135 participants. In view of their diverse background, they are divided into two groups, General Public and Expert. General Public means participants have no expertise in AI image generation. Expert denotes participants have at least some basic knowledge. Each group is asked to finish the same two tasks. For Task 1, each question randomly sampling a pair of images, which includes a generated(Gen) sample by different editing methods and a ground-truth(GT) real image respectively. The participant needs to answer which one has been more likely edited by an AI model. In Task 2, different from previous one, a pair of images consists of a sample generated by CannyEdit(our method) and a sample from other editing methods based on the same source image and editing instruction. The participant should choose which one has been more likely edited by an AI model. Such a design can help participants concentrate more on intuitive visual sensation rather than worry about additional semantic information utilized in \cite{zhu2025kv}, which deteriorates stability of feedback. \textcolor{red}{Some examples of question are shown in Appendix.}
 
 In both two groups, the result of Task 1 shows that participants almost randomly give choices between images generated by CannyEdit and GT images, which demonstrates it is hard to differentiate edited images by our method from real images. For Task 2, at least 62.5\% answers judge that samples from other editing methods are more likely generated by AI compared with our method. All the results elucidate that CannyEdit achieves a significant performance of seamlessness. 
  
@@ -803,7 +845,7 @@ In both two groups, the result of Task 1 shows that participants almost randomly
 \begin{center} 
 \footnotesize
 \setlength{\tabcolsep}{1.85mm} %
-\caption{\textbf{Comparison with other methods on PIE-Bench.} VAE$^*$ denotes the inherent reconstruction error through VAE reconstruction only. P2P and MasaCtrl are DDIM-based methods, while RF Inversion, RFSolver-Edit and KV-Edit are flow-based. BrushEdit, FLUX fill and Powerpaint-FLUX represent training-based methods. Except result of ours, other results follow \cite{zhu2025kv}. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
+\caption{\textbf{Comparison with other methods on PIE-Bench.} VAE$^*$ denotes the inherent reconstruction error through VAE reconstruction only. Except result of ours, other results follow \cite{zhu2025kv}. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
 \begin{tabular}{l|cc|ccc|cc}
 \toprule
 \multirow{3}{*}[0.8ex]{Method} & \multicolumn{2}{c|}{Image Quality} & \multicolumn{3}{c|}{Masked Region Preservation} &\multicolumn{2}{c}{Text Align} \\
@@ -813,12 +855,12 @@ VAE$^*$ & 24.93 & 6.37 & 37.65 & 7.93 & 3.86 & 19.69 & -3.65\\
 \midrule
 P2P~\cite{hertz2022prompt} & 25.40 & 6.27& 17.86 & 208.43 & 219.22 & 22.24 & 0.017 \\
 MasaCtrl~\cite{cao2023masactrl} & 23.46 & 5.91 & 22.20 & 105.74 & 86.15 & 20.83 & -1.66\\
-RF Inv.~\cite{rout2024semantic} & \textbf{27.99} & \textbf{6.74} & 20.20 & 179.73 & 139.85 & 21.71 & 4.34\\
+RF-Inversion~\cite{rout2024semantic} & \textbf{27.99} & \textbf{6.74} & 20.20 & 179.73 & 139.85 & 21.71 & 4.34\\
 RFSolver-Edit~\cite{wang2024taming} & \underline{27.60} & \underline{6.56}& 24.44& 113.20& 56.26& 22.08& 5.18\\
 KV-Edit~\cite{zhu2025kv} & 27.21 & 6.49 & \textbf{35.87}& \textbf{9.92}& \textbf{4.69}& 22.39 & 5.63\\
 BrushEdit~\cite{li2024brushedit} & 25.81 & 6.17 & 32.16 & \underline{17.22} & \underline{8.46} & \underline{22.44} & 3.33\\
 FLUX Fill~\cite{blackforest2024FLUX} & 25.76 & 6.31 & \underline{32.53} & 25.59 & 8.55 & 22.40 & \underline{5.71}\\
-Powerpaint-FLUX~\cite{zhuang2023task} & & & & & & & \\
+%Powerpaint-FLUX~\cite{zhuang2023task} & & & & & & & \\
 \midrule
 \textbf{CannyEdit(Ours)} & 27.19 & 6.38 & 32.18 & 26.38 & 9.79& \textbf{25.36} & \textbf{8.20}\\
 \bottomrule
@@ -1344,7 +1386,7 @@ In this section, we validate effectiveness of key modules in CannyEdit based on 
 \item {\bf Experiment statistical significance}
     \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
     \item[] Answer: \answerYes{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
-    \item[] Justification: We take well-designed human study to evaluate the seamlessness of editing methods. The statistical confidence is also reported in Table~\ref{tab:rice-human-study}.
+    \item[] Justification: We take well-designed user study to evaluate the seamlessness of editing methods. The statistical confidence is also reported in Table~\ref{tab:rice-human-study}.
     \item[] Guidelines:
     \begin{itemize}
         \item The answer NA means that the paper does not include experiments.
