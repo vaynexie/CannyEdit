@@ -1,0 +1,496 @@
+% Most existing training-free DiT-based methods (e.g., Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit  \citep{deng2024fireflow}) that uses text guidance without location markers faces two key issues: (1) Localization ambiguity in complex scenes where text prompts fail to specify precise edit regions, and (2) fail to make a good trade-off between local editability and background consistency — while maintaining background fidelity, they struggle with significant layout changes (e.g., adding a human subject often yields undersized or missing objects). Another method, KV-Edit \citep{zhu2025kv} supports mask inputs to specify the edit region. While the method improves the local editabiltiy but produce outputs in poor affordance wiht unnatural object interactions and partial object generation near mask boundaries, limiting practical usability. We attribute the unsatisfying editing results due to the direct replacement of  keys and values corresponding to the background pixels  from he ones obtained from the inversion. during the attention computation process. To summary, the attention reuse methods...
+
+
+
+%  as examples by have shifted more toward the advanced rectified-flow-based diffusion transformers (DiTs),  which
+
+
+
+% This study explores a different approach by using text-to-image (T2I) foundation models in a training-free way to perform regional editing tasks. This method takes advantage of these models' ability to realistically depict object interactions, which they have learned from large datasets. Originally, these techniques were developed using UNet-based diffusion models, as noted in studies by Hertz et al. (2022), Cao et al. (2023), and Tumanyan et al. (2023). However, more recent research, such as those by Rout et al. (2024), Wang et al. (2024), Deng et al. (2024), Tewel et al. (2025), and Zhu et al. (2025), has moved towards using advanced rectified-flow-based diffusion transformers, known as DiTs. These include the widely recognized open-source FLUX model by Blackforest et al. (2024). These DiT models have shown to be more effective and flexible in editing than the earlier UNet-based methods, thanks to their superior generation abilities and simpler architecture. 
+
+
+% In this work, we specifically focus on harnessing rectified-flow-based DiTs for regional image editing,
+
+% % %A straightforward solution for the regional editing task is to collect the pairs of training data (before editing, after editing) along with the edit text prompts, and use the data to train or fine-tune a generation model \citep{brooks2023instructpix2pix,zhang2023magicbrush,wasserman2024paint,li2024brushedit,hui2024hq,wei2024omniedit}. While these methods have been shown to able to generate local features in some cases well, they often struggle with generalization beyond their training data. For instance, they frequently fail to realistically insert people interacting with existing objects in scenes. We attribute the failures to the lack of high-quality training data for such complex edits. In this study, we therefore focus on another, another line of work has explored training-free methods that harness T2I foundation models, capitalizing on their inherent ability to capture realistic object interactions learned from large-scale training data. Initially explored with UNet-based diffusion models \citep{hertz2022prompt,cao2023masactrl,tumanyan2023plug}, this line of approaches has evolved to rectified-flow-based diffusion transformers (DiTs) such as the FLUX model \citep{blackforest2024flux}, such as methods proposed in \citet{rout2024semantic,wang2024taming,deng2024fireflow,tewel2025addit,zhu2025kv}.
+
+% In this work, we focus on harnssing rectified-flow-based DiTs for regional image editing, leveraging their superior generative performance and architectural simplicity. These approaches typically operate through a two-stage process: first inverting an input image into latent representations throughout the denoising steps (inversion), then integrating self-attention features extracted during inversion into the new generation process (either concentate the ) Most existing training-free DiT-based methods (e.g., Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit  \citep{deng2024fireflow}) that uses text guidance without location markers faces two key issues: (1) Localization ambiguity in complex scenes where text prompts fail to specify precise edit regions, and (2) fail to make a good trade-off between local editability and background consistency — while maintaining background fidelity, they struggle with significant layout changes (e.g., adding a human subject often yields undersized or missing objects). Another method, KV-Edit \citep{zhu2025kv} supports mask inputs to specify the edit region. While the method improves the local editabiltiy but produce outputs in poor affordance wiht unnatural object interactions and partial object generation near mask boundaries, limiting practical usability. We attribute the unsatisfying editing results due to the direct replacement of  keys and values corresponding to the background pixels  from he ones obtained from the inversion. during the attention computation process. To summary, the attention reuse methods...
+
+% This study focuses on using DiTs for regional image editing, capitalizing on their generative prowess and architecture simplicity. 
+
+% a two-stage process is common: image inversion followed by attention feature integration. Initially explored with UNet-based diffusion models \citep{hertz2022prompt,cao2023masactrl,tumanyan2023plug}, this approach has evolved to rectified-flow-based diffusion transformers (DiTs) such as the FLUX model \citep{blackforest2024flux}.
+
+
+% . Research in this training-free paradigm commenced with UNet-based diffusion models \citep{hertz2022prompt,cao2023masactrl,tumanyan2023plug}, and more recent work \citep{rout2024semantic,wang2024taming,deng2024fireflow,tewel2025addit,zhu2025kv} has extended it to the advanced rectified-flow-based diffusion transformers (DiTs) like the FLUX model \citep{blackforest2024flux}, which have shown promising generative capabilities.
+
+% In this work, we focus on harnssing rectified-flow-based DiTs for regional image editing, leveraging their superior generative performance and architectural simplicity. Most existing training-free DiT-based methods (e.g., Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit  \citep{deng2024fireflow}) that uses text guidance without location markers faces two key issues: (1) Localization ambiguity in complex scenes where text prompts fail to specify precise edit regions, and (2) fail to make a good trade-off between local editability and background consistency — while maintaining background fidelity, they struggle with significant layout changes (e.g., adding a human subject often yields undersized or missing objects). Another method, KV-Edit \citep{zhu2025kv} supports mask inputs to specify the edit region. While the method improves the local editabiltiy but produce outputs in poor affordance wiht unnatural object interactions and partial object generation near mask boundaries, limiting practical usability. We attribute the unsatisfying editing results due to the direct replacement of  keys and values corresponding to the background pixels  from he ones obtained from the inversion. during the attention computation process. To summary, the attention reuse methods...
+
+
+%In the realm of training-free methods leveraging T2I foundation models for object interactions, a two-stage process is common: image inversion followed by attention feature integration. Initially explored with UNet-based diffusion models \citep{hertz2022prompt,cao2023masactrl,tumanyan2023plug}, this approach has evolved to rectified-flow-based diffusion transformers (DiTs) such as the FLUX model \citep{blackforest2024flux}.
+
+%This study focuses on using DiTs for regional image editing, capitalizing on their generative prowess and simplicity. While existing methods like Add-it \citep{tewel2025addit} and RF-Solver-Edit \citep{wang2024taming} employ text guidance, they struggle with localization ambiguity and balancing local edits with background consistency. KV-Edit \citep{zhu2025kv} addresses this by supporting mask inputs, yet it falls short in preserving object interactions and generating natural outputs near mask boundaries.
+
+%The subpar editing outcomes are attributed to directly replacing background pixels' keys and values during attention computation. To summarize, attention reuse methods in training-free editing workflows...
+
+%In this work, we focus on harness the rectified-flow-based DiTs for the regional editing task given its superior generative performance and simpler model architectures. While previous training-free editing methods based on the DiTs apply inversion with attention reuse, we find important shortfalls for this attention-based method. The Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit \citep{deng2024fireflow} methods support text-guided editing without needs of specific region marker given. They could be confused to the precise location of the editing in real-world images with complex scenarios where the location is hard to be specified with text only. Another issue is that these methods often face challenges on the trade-off between the editability and background consistency, While they could maintain the source image information well, in the edits that involve significant layout changes. For instance, while the text prompt of human subject adding is provided, the model would tend to generate the output with ``small''human subject or simply do not do the adding. Another method, KV-Edit \citep{zhu2025kv} supports mask inputs to specify the edit region. While the method improves the local editabiltiy, we have observed that the methods would result in output with disappointingly bad affordance with the surrounding objects. We attribute
+
+
+
+%we have observed that the methods would result in output with disappointingly bad affordance with the surrounding objects. We attribute Mask-based approaches like KV-Edit \citep{zhu2025kv} improve localization but introduce affordance inconsistencies (unnatural object interactions) and partial object generation near mask boundaries, limiting practical usability. We 
+
+%Here we describe an open-world, training-free method that can successfully leverage the knowledge stored in text-to-image foundation models, to naturally add objects into images. 
+
+%which achieves high-quality editing performance while effectively preserving the structural information in source images or videos
+
+
+
+
+
+%This line of work tried to solve the research question: how to adapt a T2I model—originally designed for text-conditioned generation—into a extra conditional generation setting, where the extra condition is the existing image content,  while making minimal changes to its original denoising process and attention mechanisms.
+
+%The key question is: how can we enable conditional regional editing using a T2I model, while making minimal changes to its original denoising process and attention mechanisms?
+
+
+
+%In this paper, we focus on one of the most challenging applications: regional image editing. This task involves making specific edits (e.g., object adding, replacement or removal) to given areas of a generated or real-world image while keeping the rest of the image unchanged. It is effectively a conditioned T2I generation task, where the additional condition is the existing content in other parts of the image. 
+
+%The question is how to transfer the T2I model from the normal T2I generation into the special conditional T2I generation with minimum effects on its original denoising and attention computation mechanism. To conditioned on the existing content in the other parts of the image, one need to have the 
+
+%Here we describe an open-world, training-free method that can successfully leverage the knowledge
+%stored in text-to-image foundation models, to naturally add objects into image
+%This is a natural choice since these models embody substantial
+%knowledge about arrangements of objects in scenes and support open-world conditioning on text.
+
+
+
+%A straightforward approach for the task is to gather pairs of training data (before and after editing) along with the edit text prompts, and use this data to train or fine-tune a generation model \citep{brooks2023instructpix2pix,zhang2023magicbrush,wasserman2024paint,li2024brushedit,hui2024hq,wei2024omniedit}. While these methods can effectively generate local features in some cases, they often face challenges in generalizing beyond their training data. For example, we have observed that these methods frequently struggle to seamlessly integrate people who interact with elements already present in the images.
+
+%However, these often struggle with generalization beyond their training data, falling short of the general nature of the original diffusion model itself. This typically manifests as a failure to insert the new object, the creation of visual artifacts, or more commonly – failing to insert the object in the correct place, i.e. struggling with affordances. Indeed, we remain far from achieving open-world object insertions from text instructions
+
+% The regional editing tasks include: object adding \citep{}, replacement \citep{}, removal \citep{}, regional context change \citep{} and  personalization \citep{}.
+
+
+ % training-based method FLUX Fill, BrushEdit
+
+
+%To be specific, the regional edits can include ...
+% Ideally, ..
+% trade-off 1: local controllablity vs. global affordance
+
+%training-based method: good at background consistency, but bad at gloabl affordance
+
+%training-free method: attention-sharing. Local editabiltiy vs. background consistency. Edit w/ large layout change. KVEdit: direct replacement of attention 
+%% Extend to DiTs
+
+%1. The definition to the task: Regional Image Editing [cite many previous works]. The usefulness and difficulties [two trade-offs] of it.
+
+%2. Training-based methods: the disadvantages.
+
+%3. Training-free methods: text-guided image editing: attention sharing (w/ inversion) + blending (Rectified Flow, Fireflow, Add-it); regional image editing (KV-Edit, Personalize everything): require high-quality masks, imperfect affordance, collateral effects.
+
+
+
+%but often introduces unrealistic interactions between the edited region and the original context. We attribute these unsatisfactory outcomes to KV-Edit’s disconnected attention computation, where at each denoising step, the keys and values for the background are directly replaced with those inverted from the source image, while the keys and values for the edit region are taken from the current denoising, resulting in inconsistency and unrealistic blending between the two regions.
+
+
+%1. The Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit \citep{deng2024fireflow} struggle to balance local editability and background fidelity, especially when edits significantly alter the scene layout — leading to undersized or failed generation objects; 2. KV-Edit \citep{zhu2025kv} improves local editability, enabling larger layout changes, but frequently introduces unrealistic interactions between the edited region and original context. We attribute these unsatisfactory results to KV-Edit’s disconnected attention computation, wherein at each denoising step, the keys and values for the background are directly replaced with those inverted from the source image, while the keys and values for the edit region are taken from the current denoising, leading to inconsistency and unrealistic blending between the two regions.
+
+%fail to make a good trade-off between local editability and background fidelity — while maintaining background fidelity, they struggle with edits involving significant changes in image layouts (e.g., adding a human subject often yields undersized or missing objects); 2. With the improved local editability in KV-Edit \citep{zhu2025kv}, the objects with large layout change can be generated but frequently in poor affordance  involving unnatural interactions with the original context in the image.  We attribute the unsatisfying editing results in KV-Edit to the disconnected attention computation between the edited region and the background during generation. At each denoising step, the keys and values for the background region are directly replaced with those inverted from the source image, while the keys and values for the edit region continue to be taken from the current denoising step—leading to inconsistency and unrealistic blending between the two regions.
+
+%In this work, we also focus on using advanced DiTs in a training-free way for regional editing tasks. Existing methods typically follow a two-stage process: first, the input image is inverted into the DiT's latent representations to get the attention features at each immediate denoising step; then these features are used in the attention computation of a new generation process — either by concatenating the source image’s keys and values with the current ones, or by replacing the current keys and values with these of the source image. However, some issues were found for the existing methods: 1. The Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit \citep{deng2024fireflow} fail to make a good trade-off between local editability and background fidelity — while maintaining background fidelity, they struggle with edits involving significant changes in image layouts (e.g., adding a human subject often yields undersized or missing objects); 2. With the improved local editability in KV-Edit \citep{zhu2025kv}, the objects with large layout change can be generated but frequently in poor affordance  involving unnatural interactions with the original context in the image.  We attribute the unsatisfying editing results in KV-Edit to the disconnected attention computation between the edited region and the background during generation. At each denoising step, the keys and values for the background region are directly replaced with those inverted from the source image, while the keys and values for the edit region continue to be taken from the current denoising step—leading to inconsistency and unrealistic blending between the two regions.
+
+
+%\textcolor{red}{Inversion + Blending (drawbacks: bad affordance?); Inversion + Blending + Attention Sharing (KVEdit, drawbacks: need precise masks, however, when precise mask is given, it cannot generate the object is generated perfectly in the given mask).}
+
+
+% While these methods can produce accurate edits in specific scenarios, they often lack generalization. For example, they frequently fail to realistically insert people interacting with existing objects in scenes. This limitation stems from the difficulty of obtaining high-quality training data for complex edits.
+
+%can effectively generate localized edits in some scenarios,
+
+%A straightforward solution for regional editing tasks involves collecting pairs of training data (before and after editing) alongside corresponding text prompts, and then using these datasets to train or fine-tune generation models \citep{brooks2023instructpix2pix, zhang2023magicbrush, wasserman2024paint, li2024brushedit, hui2024hq, wei2024omniedit}. While such approaches have demonstrated adequate performance in generating local features for some scenarios, they often struggle to generalize beyond their training distribution. For instance, these methods frequently fail to realistically insert people interacting with existing objects in scenes, an issue we attribute primarily to the scarcity of high-quality training data capturing such complex interactions.
+
+
+
+%Consequently, this study explores an alternative line of research that leverages T2I foundation models in a training-free manner for regional editing tasks, making use of their inherent ability to represent realistic object interactions learned from large-scale datasets. While this line of methods was initially developed using UNet-based diffusion models \citep{hertz2022prompt, cao2023masactrl, tumanyan2023plug}, recent efforts have shifted towards using more advanced rectified-flow-based diffusion transformers (DiTs), such as the leading open-source FLUX model \citep{blackforest2024flux}, for editing tasks. The newer DiT-based methods proposed in \citet{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv} have demonstrated improved editing performance and greater flexibility compared to earlier UNet-based approaches, benefiting from the stronger generative power and simpler architecture of DiT models.
+
+
+%In this study, we further investigate advanced DiTs for training-free regional editing.  Existing methods typically follow a two-stage process: first, the input image is inverted into the DiT’s latent representations to extract attention features at each intermediate denoising step; then, these features are incorporated into the attention computation during a new generation process. However, challenges remain:  (1) The Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, FireFlow-Edit \citep{deng2024fireflow} struggle to strike a good trade-off between local editability and background fidelity — while using the attention features from the source image maintains background fidelity, they struggle with edits involving significant changes in image layouts (e.g., adding a human subject often yields undersized or failed generation objects); (2) KV-Edit \citep{zhu2025kv} improves local editability and enables more substantial layout changes, but frequently introduces unrealistic interactions between the edited region and the original context. We attribute this to KV-Edit’s disconnected attention computation, where, at each denoising step, background keys and values are taken from the inverted source while those for the edit region are taken from the current denoising, leading to inconsistency and unrealistic blending between the two regions.
+
+
+%We identify the root cause of the phenomenon as KV-Edit’s decoupled attention mechanisms: during the attention computation of each denoising step, the keys and values from the background pixels are extracted from the inverted source, while those in the edit region are  derived from the current denoising process. This dual-origin paradigm creates fundamental incompatibilities in cross-region attention patterns, resulting in incoherent feature blending and unrealistic artifact generation.
+
+%We attribute the root cause of the phenomenon as the  KV-Edit’s decoupled attention mechanisms, where keys and values are sourced differently for background and edited regions during denoising  (background pixels from inverted source vs. edited regions from current denoising), disrupting cross-region coherence.
+
+
+
+
+
+%first, the input image is inverted into the DiT’s latent representations to extract attention features at each intermediate denoising step; then, these features are incorporated into the attention computation during generation—either by concatenating the source image’s keys and values with the current ones, or by replacing the current keys and values with those from the source image.
+
+
+
+%and Canny Object Outlines, Simplified Details, The use of canny edge map in the T2I generation to ensure the generated image has the desired image layout has been well explored in ControlNet \citep{zhang2023adding}, and implemented for advanced different  foundational T2I models by the community. 
+
+
+
+
+%The canny controlNet itself is a additional copy of the denoising blocks which is trained on from the foundational T2I which takes the given canny edge map, text latents and image latents as inputs and its output of its each block is directly added into the corresponding block of the T2I foundation model. After trained with the data incorporating the canny edge map, the ControlNet on top of the foundation T2I model (which is frozen during the training) has been shown to be able to generate image being faithful to the given text and canny map. While the applicatoin of canny edge guidance has been well explored in the whole image generation, the regional image editing wtih canny edge guidance is little to be explored.
+
+
+
+%Seeing the challenges, instead of following the existing attention-based methods, We seek to another direction of editing  based on another guidance - the canny edge. Highlighting that we do not want to alter the original text-image attention computation process, which best keep the T2I ability of the foundation generation model.
+
+
+
+%Witnessing the imperfect editing ability of previous attention-based editing method, we propose another new editing method based on another guidance - the canny edge.  The canny edge map includes the general layout information of the image, The spatial arrangement of objects in the scene is represented by their outlines. and Canny Object Outlines, Simplified Details, The use of canny edge map in the T2I generation to ensure the generated image has the desired image layout has been well explored in ControlNet \citep{zhang2023adding}, and implemented for advanced different  foundational T2I models by the community. The canny controlNet itself is a additional copy of the denoising blocks which is trained on from the foundational T2I which takes the given canny edge map, text latents and image latents as inputs and its output of its each block is directly added into the corresponding block of the T2I foundation model. After trained with the data incorporating the canny edge map, the ControlNet on top of the foundation T2I model (which is frozen during the training) has been shown to be able to generate image being faithful to the given text and canny map. While the applicatoin of canny edge guidance has been well explored in the whole image generation, the regional image editing wtih canny edge guidance is little to be explored.
+
+
+%(1) Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, and FireFlow-Edit \citep{deng2024fireflow} struggle to strike a balance between local editability and background fidelity. While using the attention features from the source image preserves background fidelity, these methods struggle with edits involving substantial changes in image layouts (e.g., adding a human subject often results in undersized or failed generation of objects). (2) KV-Edit \citep{zhu2025kv} enables more significant layout changes but often introduces unrealistic interactions between the edited region and the original context. We attribute the root cause of the phenomenon to the KV-Edit’s decoupled attention mechanisms, wherein keys and values are sourced differently for background and edited regions during denoising (background region from the inverted source vs. edited regions from current denoising) — thereby disrupting cross-region coherence.
+
+% W
+
+% In short, previous attention-guided methods use attentions features inverted from source image to maintain the source image information in the new generation and tried to allow the editability with target text prompt. Either fail to make the edit and result in edit in poor affordance. Seek new way to maintain source image information while allow the local editabiity effectively, and at the same time, make sure to edit is affordance-aware
+% Step back to think, the foundation DiTs model has inherent ability to represent realistic object interactions learned from large-scale datasets, and thus in the normal T2I generation with normal text-image cross attention, they are good at generating high-quality image with realistic element interactions. %A question here is that, could we maintain the source image information without altering the normal attention computation during the denoising process. 
+
+
+%We attribute the limitations of current methods to the inherent difficulty in balancing local editability and background fidelity when incorporating source-image attention features into the attention computation, often resulting in either unsuccessful edits or poor coherence between edited regions and their surroundings.
+
+
+%Therefore, in this work, instead of we propose another method
+
+
+
+
+%many editing tasks involving changes on the image layout, 
+
+% A simple example of canny-guided editing is in Figure \ref{fig2} (a), by drawing with desired change on the canny edge map, the FLUX.1-dev with the canny Controlnet \citep{xlabsai2025fluxcontrolnet} is capable of conducting the edits as drawn. Besides than requiring user's draws on the canny map, we have also observed in Figure \ref{fig2} (b) that  with the same canny edge map and the text prompts including different subjects in the text prompts, the outputs can generate the subject correspondingly in the same location are generated based on the same canny.1). This shows the potentials of regional editing using the canny guidance when the layout of the image is not change, like in the object transfer task.
+
+%This enables image generation that aligns with both textual prompts and the structural guidance provided by the canny edge maps.
+
+
+
+% We have observed that using the leading open-source DiT model - FLUX.1-dev   (\citep{blackforest2024flux}) with the Canny ControlNet implemented by \citet{}, when input with the same canny edge map and the text prompts including different subjects in the text prompts, the outputs can generate the subject correspondingly in the same location (Figure \ref{fig2} (a)(b)(c) are generated based on the same canny.1). This shows the potentials of regional editing using the canny guidance when the layout of the image is not change, like in the object transfer task. In the other cases that the regional editing would involve the layout chanage, for instance adding a new object into the image, while applying the canny control as in previous would fail to generate the added object in a reasonable location (e.g., Figure \ref{fig2} (d) are generated based on canny.2 where the canny.2 does not include person inside), we have observed that masking the values corresponding to specific region in the output of canny controlnet block to be 0, and add the modified controlnet output to the foundation T2I model can result in the affordance generation of object in that mask region (e.g., Figure \ref{fig2} (e)).  The sucessful generation of the object 
+
+
+
+
+
+
+%Crucially, our method preserves the original text-to-image attention computation process inherent to the foundational diffusion model, thereby maintaining its core generative capabilities.
+
+%%the unchanged background layout also makes sure that the generated object is semantically fitted with the original environment well if the objects can be generated.
+
+%% 3. the normal attention computation
+
+
+
+% In summary, the trade-off of local editability and background fidelity and affordance in the edited image are the issues that have not been well resolved in previous attention-guided editing methods. 
+% As the issue arises from the attention-guided pipeline
+
+%To better resolove the issues and improve the practical usability of the editing method in real-world image, 
+
+
+
+
+
+% Advantages of canny-guided editing
+
+
+%It is noted that the ControlNet does not alter the  
+
+%The information lied on the canny edge map can help with affordance-aware adding since ...
+% The canny control in the T2I generation has been well  explored in ControlNet \citep{} and currently implemented for advanced DiT models \citep{}. The Canny ControlNet    
+
+
+%
+%It can also be witnessed that the generated person blends seamlessly with the context of the dinner room. This thanks to the unaltered image-text computation and the maintain layout information in the context via the canny control.
+
+%Third, also, in both cases of Figure \ref{fig2}, 
+
+%%We attribute the successful generation of the object in the mask region as three reasons: 1. the controlnet features added into the foundation T2I model is originally optional, thus the partial canny features fix the layout in other parts of the image while the relaxation of canny control at the mask region allow the local editability; 2. the maintance of layout in the other parts of the image and the normal attention between the regions ensure that the generated objects to be be coherent with the image contexts.
+
+
+% Noted that the addition of contrlnet information to the generation models would not alter the original attenton computation within the model
+
+
+% Compared to canny-guided image generation, canny-guided regional image editing has been little explored. The reasons why canny guidance with foundation T2I models could be useful for regional editing include below. 
+
+% First, with the canny ControlNet, the canny edge map provides control over the general image layout, when input with different text prompts, the edits can be made while keeping the image layout unchanged. A simple example is illustrated in Figure \ref{fig2} (a). Using FLUX.1-dev \citep{blackforest2024flux} with the canny ControlNet implementation from \citet{xlabsai2025fluxcontrolnet}, given the same canny edge map but different subjects specified in text prompts, the outputs (a, a.1, a.2) correctly position the subjects consistently within the same location. 
+
+% Second, the relaxation of canny control on specific region can allow the local editabiltiy while maintaining the layout of the other regions unchanged. The outputs from the canny ControlNet are optional for foundation T2I models. When provided, generation in the corresponding regions follows both text prompts and structural information from the canny edges; otherwise, it relies solely on text prompts. We observed that T2I models with canny ControlNet can also handle partial ControlNet outputs, where the outputs for specific regions are set to zero before being added, allowing the local editing involving the image layout change. An example is shown in Figure \ref{fig2} (b). Adding a person into a dining room image involves a layout change; applying full canny control as previously done fails to place the added object reasonably (Figure \ref{fig2} (b.1)). However, masking the values corresponding to a specific region (the black region in (b.canny mask)) to zero in each block of ControlNet outputs, and then adding these modified outputs into the foundation T2I model, successfully generates the intended object in that region (Figure \ref{fig2} (b.2)). 
+
+% First, the canny ControlNet allows control over the general image layout. By using the same canny edge map with different text prompts, edits can be made while preserving the layout. For example, as shown in Figure \ref{fig2} (a), FLUX.1-dev \citep{blackforest2024flux} with the canny ControlNet implementation from \citet{xlabsai2025fluxcontrolnet} consistently positions different subjects (a, a.1, a.2) within the same location based on the edge map.
+
+% Second, relaxing canny control over specific regions allows for local editability while preserving the layout of other areas. Outputs from the canny ControlNet are optional for T2I generation models—when provided, generation combines text prompts and structural information; otherwise, it relies solely on text prompts. We found that T2I models with canny ControlNet  can also handle partial outputs from ControlNet, where the outputs for specific regions are set to zero before being added to the T2I model, allowing flexibility in those regions while maintaining the layout elsewhere. For instance, adding a person to a dining room image involves a layout change. Full canny control fails to position a person well (Figure \ref{fig2} (b.1)), but masking the ContolNet outputs of a specific region (black in (b.canny mask)) to zero and adding these modified outputs to the T2I model allows the model to successfully generate the object in the intended region (Figure \ref{fig2} (b.2)). It can also be witnessed that the generated person also integrates seamlessly into the scene, capitalizing on the T2I model’s attention computation of the image-text features and preserved layout constraints via active canny control in unchanged regions.  
+
+%the canny ControlNet enables precise layout control in text-to-image (T2I) generation by leveraging edge maps.
+
+% First, with the T2I model and the canny ControlNet, using identical canny edge inputs with varying text prompts allows content edits while preserving structural consistency. Using FLUX.1-dev \citep{blackforest2024flux} with the canny ControlNet implementation from \citet{xlabsai2025fluxcontrolnet}, given the same canny edge map but different subjects specified in text prompts, the outputs (a, a.1, a.2) correctly position the subjects consistently within the same location. 
+
+% Second, selective relaxation of canny control further enables localized edits. By masking specific ControlNet outputs (setting regions to zero), the T2I model prioritizes text prompts for those areas while retaining layout constraints elsewhere. For instance, adding a person to a dining scene fails under full canny control (Fig. \ref{fig2}(b.1)) but succeeds when masking the target region (Fig. \ref{fig2}(b.2)), seamlessly integrating new elements via the T2I model’s contextual understanding and preserved edge guidance in unchanged zones.
+
+
+
+%Second, selectively relaxing canny control enables local editing while preserving the overall layout. Outputs from the canny ControlNet are optional for T2I models—when included, generation combines structural canny data with text prompts; otherwise, it relies solely on text.  We found that the T2I model can also handle partial outputs from the canny ControlNet, Setting specific regions to zero, adding flexibility to those areas while maintaining the rest of the layout.
+
+
+%Second, relaxing canny control selectively allows local editing while preserving the layout elsewhere. Outputs from canny ControlNet are optional inputs for T2I models—when provided, generation combines structural canny information and text prompts; otherwise, it relies solely on text. We found that the T2I model can also handle partial outputs from the canny ControlNet, where the outputs for specific regions are set to zero before being added to the T2I model, allowing flexibility in those regions while maintaining the layout elsewhere. For instance, adding a person to a dining room image introduces layout changes where full canny control struggles with positioning (Figure \ref{fig2}(b.1)). However, masking the ControlNet outputs for a targeted region (black area in (b.canny mask)) by zeroing them out allows the T2I model to successfully generate the new subject in the intended location (Figure \ref{fig2}(b.2)). It can also be witnessed that the generated person integrates seamlessly into the scene.
+
+%The generated subject integrates seamlessly, leveraging both the model's image-text attention computation and layout preservation from the remaining active canny control regions.
+
+
+%which strategically suppresses canny control information within user-defined regions. While the canny control with the same edge map preserves the layout in regions with active control but may not retain consistent visual details across edits (as shown in Figure \ref{fig2}). To ensure high background fidelity during real-world editing, we include the canny ControlNet in the inversion process to capture the source image's ControlNet outputs at each denoising step. These outputs, after the selective regional masking, are incorporated into the T2I model’s denoising blocks during edited image generation. Additionally, fine-grained regional control is achieved by integrating regional text control via attention masks, enabling precise textual guidance for specific areas. 
+
+
+
+
+
+%As can be seen in Figure \ref{fig2}, the canny control with the same canny edge map can ensure the prevervation of image layout in region with activate canny control but cannot ensure the visual details of thse regions across edits are the same. To maintain high level of background fidelity during real-world image editing, we include the canny ControlNet during the inversion process of the image to get the ControlNet's outputs of the source image at each denoising step. During the generation of the edited image, the ControlNet's outputs from the source image are added into the T2I model's denoising blocks. Also, To achieve fine-grained regional controllability, we integrate regional text control via attention masks, enabling precise textual guidance over localized areas. 
+
+%the latent feature space
+
+%The inversion of real images into noise feature space
+
+%incorporate the canny ControlNet information within the inversion
+
+
+
+%While canny control effectively maintains the general layout, it may lack detailed visual information about objects—such as colors and textures—which can limit the  preservation of background details. To address this, we blend the background’s latent features, obtained through inversion, into the latent features of the current denoising process. 
+
+
+%By unifying these techniques, CannyEdit can achieve versatile performance across diverse editing tasks with minimal technical modifications, serving as a unified framework for regional image editing. 
+
+% While canny control effectively maintains the general layout, it may miss detailed visual information about objects, such as colors and textures. To preserve background fidelity, we blend the background’s latent features, obtained through inversion, into the latent features of the current denoising process. The CannyEdit can be applied to different editing tasks with minimum technical modifications.
+
+% Taking the flexibility of the canny control, in this work, we proposed a regional editing method named \textbf{\textit{CannyEdit}} which applies the canny guidance in the editing. The key of the method is the selective canny control, which enable a trade-off between the the preservation of general image layout and the coherence-aware edits of a local region in an image. Besides this, to maintain high level of regional controllability, we incorporate the regional text control via attention masks to enable the text control on a local region. While the canny control maintain the general layout information well, the detailed information of objects in the image, like the colors, textures and so on could be missed, the maintain the background fidelity, we blend the image latent features for the background region obtained from the inversion into the image latent features of current denoising. 
+
+%, beginning with Stable Diffusion \citep{rombach2022high} and DALL$\cdot$E 3 \citep{betker2023improving}, which utilize UNet and diffusion models (DMs) \citep{rombach2022high}. More recent developments include the FLUX \citep{blackforest2024FLUX} and SD3 model \citep{esser2024scaling}, which adopt the diffusion transformer (DiT) architecture \citep{peebles2023scalable} and rectified flow models \citep{liu2022flow, lipman2022flow}. 
+
+
+
+
+% The newer DiT-based methods have demonstrated improved editing performance and greater flexibility compared to earlier approaches, benefiting from the stronger generative power of the base model. The major work of them are based on injection of source image's attention features into the generation of edited image.  Despite the effectiveness of them in certain editing cases, they often struggle with a critical challenge: balancing precise modifications to specific image regions based on the provided target text prompt (\textbf{\textit{Text Adherence}}) while maintaining the integrity of the unedited areas (\textbf{\textit{Context Fidelity}}). This challenge is referred to as the \textit{editability-fidelity trade-off}. While hyperparameter selection can sometimes identify an acceptable trade-off point, we show that achieving an ``optimal'' balance \textbf{could be infeasible}, especially when the image layout undergoes substantial changes. In Figure \ref{fig2}, we present quantitative results evaluating context fidelity and text adherence across 15 examples of using RFSolver-Edit \citep{wang2024taming} to insert a human subject into a real-world image (Figure \ref{fig1}(a) shows an example from the testing set). Context fidelity is measured via DINO embedding \citep{caron2021emerging} cosine similarity between source and edited images, while text adherence calculates \( p_{\text{gdino}}(\text{edited}) - p_{\text{gdino}}(\text{original}) \), where \( p_{\text{gdino}} \) denotes GroundingDINO's \citep{liu2024grounding} top-1 bounding box probability for the subject (e.g., ``a lady'' in the given example). Figure \ref{fig2} shows that the outputs either adhere well to the text or preserve the image context effectively, but no configuration achieves a strong balance between the two. The results of different points for the RFSolver-Edit in the figure are created by varying the number of denoising steps where attention feature injection is applied, from 1 to 10. Examples of edits by RFSolver-Edit under different injection steps are shown in Figures \ref{fig1}(b.1-b.5).
+
+%particularly when editing involves substantial changes to the image layout.
+
+
+
+%The source of the failed maintaining a good balance is that the visual information included in the source image's attention features is mixed, and after injection of such features, the degree of reliance on specific features is uncontrollable.
+
+% 
+
+%Although hyperparameter tuning can sometimes achieve an acceptable balance, we show that attaining an optimal trade-off is often \textbf{infeasible}, particularly when substantial changes to the image layout are required.
+
+
+%A recent study, KV-Edit \citep{zhu2025kv}, addresses the editability-fidelity trade-off by reintroducing source-image attention features specifically within user-selected regions. During the attention computation in each denoising block, the keys and values within the background area are maintained as they were in the inversion stage, while the queries, keys, and values related to the target text prompt and the designated edit area are allowed to evolve. Although KV-Edit significantly improves the trade-off (as indicated by the orange points in Figure \ref{fig2}) compared to the RFSolver-Edit, it is still with its flaws. In scenarios such as object addition, where precise masking is challenging (see Figures \ref{fig1}(c)(d)), two primary issues emerge: (1) Directly replacing background features during attention computation can result in artifacts like disconnected contexts or partially cut subjects (see Figures \ref{fig1}(c.1)), and (2) The text control over the edited areas can be imprecise, leading to unintended additions, such as the partially generated extra cat seen in Figure \ref{fig1}(d.1). These imperfections in KV-Edit underline a critical aspect of editing quality: \textbf{\textit{Editing Seamlessness}}. The visible disconnection between the background and the edited regions poses a significant challenge in achieving a high level of editing seamlessness.
+
+%which assesses whether users can readily identify if an image has been altered by AI. Seamlessness can be assessed through well-designed user studies. For instance, a user study presented 20 KV-Edit human-insertion images mixed with original ones to 20 user without technical background in T2I generation.\footnote{Participants did not view the source image alongside its edited counterpart in a single run.} They judged whether each image was AI-edited, revealing KV-Edit's low editing seamlessness, as the detection rate (xxx\%) was notably higher than the baseline for unedited images (xxx\%).
+
+
+%While segmentation models \citep{kirillov2023segment,ravi2024sam} can be used to refine masks to remove such artifacts (e.g., Figure \ref{fig1}(e.3)), the results can still appear unnatural, as seen when the lady interacts with the ``removed'' cat rather than the original one.
+
+
+
+
+
+
+
+% First Background feature substitution often severs spatial continuity, yielding truncated or “cut-off” insertions (Fig. 1c.1, d.1).
+% Text guidance is still weak inside the mask; e.g., an extra cat is hallucinated in Fig. 1e.1. Using an external segmentation model \citep{kirillov2023segment,ravi2024sam} to refine the mask suppresses this duplication, but the final image (Fig. 1e.3) remains implausible—the woman now interacts with the deleted cat rather than the original one.
+% Hence, despite its advances, KV-Edit is still far from delivering seamless, controllable additive edits.
+
+
+% KV-Edit introduces a new approach of injecting source image
+% s attention features by incorporating a user-provided mask. At each denoising block of every denoising step for the target image, in the attention computation, the keys and values corresponding to the background region (as specified by the mask) are enforced to be those obtained during the inversion process of the source image. Meanwhile, only the queries, keys, and values related to the text and edit region are updated. 
+
+
+
+%Although KV-Edit successfully maintains background information and ensures that text-specified objects are generated in the designated edit region (e.g., the orange point in Figure \ref{fig1} (a)), it still falls short of perfection.
+
+
+
+
+% In particular, in the adding task where it is difficult to provide precise mask, as examples shown in Figure \ref{fig1} (c)(d)(e). We can see from the results created by different sizes of masks that (1) the direct replacement of background related-features with the ones from the inversion in the attention computation process causes artifacts showing disconnected context between the edit and background region. In particular, in the case of human subject insertion, we commonly see the partly-cut generated subject, as examples shown in Figure \ref{fig1}(c.1)(d.1); (2) there is lack of precise text control for what to generate in the specified edited region, for instance, in Figure \ref{fig1} (e.1), KV-edit tends to generate one more cat on top of the originally existed cat in the image. While applying segmentation model \citep{kirillov2023segment,ravi2024sam} to obtain the more precise mask of the subject to be added during the denoising process and refine the generation within the new mask region help remove the additional cat, the resulting edited image (Figure \ref{fig1}(e.3)) is still unnatural since the lady is in fact interacting with the ``removed'' cat instead of with the original cat in the image.
+
+
+
+%% To move forwards, extend the idea of using user-provided mask to split the edit region and backgound region, we are seeking a more natural way to obtain seamless editing results in the user-specific region and following the user text guidance while maintaining the context in other parts of the image unchanged. 
+
+%% Instead of applying the mask in the attention features which could result in artifacts, we choose not to alter the original full attention communication among the all image patches and text tokens.
+
+%better utialize the user-provided masks to split the  
+%%  We seek to find a training-free image editing method which can better utialize the user-provided masks to precisely generate the subject user desired to add, maintaining the image context unchange and 
+
+%%we found that it comes with cost of artifact editing results. In particular, in the case of human subject insertion, we commonly see the partly-cut generated subject, as an example shown in \ref{fig1}(g) when the mask in (f) is used. 
+
+%We attribute that the production of artifact results is due to the hard freezing of the background's keys and values. The mask split the background and edited region, but does not guarantee that the edited region 
+
+%%Imagine the editing task as a generation task in a specific given region conditioned on the frozen source background feature information, there is no guarantee that 
+
+%replaced with the ones from the attention features in corresponding region during the inversion and only the keys are values of edited region are updated. Alongwith reinitination of latent noises in the edited region, the method achieves significantly better trade-off on the text adherence and background preservation. However, we found that the method still suffer from the issue, can cause the edited image unnature (1) commonly see the halfly cut human body, especially in the case of insertion when it is difficult for users to provide a precise mask of human object. We attribute the cause to... (2) collateral effects on change on the background. resulting in low editing seamlessness.
+
+% We aim to develop a method that leverages user-provided masks to achieve three key objectives:
+
+%1. **Text Adherence** – ensuring that edits occur precisely in the specified region as described in the text.
+%2. **Background Preservation** – maintaining the integrity of unedited regions.
+%3. **Editing Seamlessness** – producing visually coherent edits that are indistinguishable as AI-generated. 
+
+
+
+% In this study, we further investigate the use of advanced DiTs for regional editing. Existing training-free methods typically follow a two-stage attention-based editing pipeline: (1) Inversion: the source image is inverted into the DiT’s latent space to extract attention features at each denoising step; (2) Source-attention injection: these features are injected into the attention computation during the generation of the target image. However, a significant challenge persists. There is always trade-off between the local editability and the background preservation. While there are some cases where a good trade-off point can be found via the hyperparameter selection, we show that such ``good'' trade-off points do not exist especially for the cases involving significant changes on the image layout. In Figure \ref{fig1} (a), we show the quantitative results on the background preservation and the local editabilty on 20 examples about inserting a human subject into the real-world image (an example of the testing set is shown in Figure \ref{fig1} (b)). Here we use the cosine similarity of the DINO embedding \citep{caron2021emerging} between the source image and the edited image as the measurement of the background preservation while using the GroundingDINO \citep{liu2024grounding}  top-1 mask prediction probability between the source image and edited image \footnote{Grounding DINO accepts an (image, text) pair as inputs, and return a list of predicted bounding boxes along with the predicted probability of the box, which is the confidence of its prediction. Here we compute the top-1 predicted } to measure the success of editing.
+
+% To better quantitatively understand this point, we did a small study on 20 selected images based on the RF-solver-Edit via applying to add a human subject to the images. A key hyperparameter RF-solver-Edit is the feature sharing steps which decide the number of denoising steps where the source attention features are injected into the generation process of the target image. Here We used the similarity of DINO embeddings of the source image and target image to measure the image change and use the GroundDINO top-1 bounding box prediction probability of the inserted human subject to measure to sucess of human insertion \footnote{}. We can see from Figure \ref{fig2} (c) that there does not exist a good trade-off point where good background fidelity and the editability can be maintained at the same time.
+
+
+
+
+%(1) Methods such as Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, and FireFlow-Edit \citep{deng2024fireflow} struggle to balance local edits with background fidelity, often failing with major layout changes (e.g., adding a human subject results in undersized or failed objects); (2) KV-Edit \citep{zhu2025kv} supports larger layout changes by using a mask to decouple the background and edit regions, but its decoupled attention mechanism disrupts cross-region coherence, which could result in unrealistic interactions between edited regions and the original context, especially in the adding task. These challenges underscore the difficulty of maintaining both editability and background fidelity using source-image attention features.
+
+% challenges: (1) struggle to balance local edits with background fidelity
+%The attention features emboid latent information that is undecoupable and unexplainable to users. While StableFlow has explored which attention blocks are critical to image editing, however, their exploration are based on empircai experiment results based on limited examples covering limited tasks. In general, it is unknown that what information is encoded in different attention blocks during different denoising stages. As thus, it is uncontrollable that which information the current denoising process learnt from the attention features of source image. In this situation, it is almost inflexible to find a balance point of  background fidelity and local editabiity, especially for the cases that involves the significant image layout change. For instance, for the task of inserting human subject into the image, we can see that KV-solver-Edit requires at least xx denosing steps of feature sharing to generate environment similar to original, 
+
+
+
+
+%% task: Insert people to context. Region preservation, CLIP similarity, editing successful seamlessness rate = sucess generation rate * (1-pick rate)
+
+%% good of cannny: decouple layout information; will not alter attention computation
+
+% Figure 2: (a.1) (a.2) (b.1) (b.2) struggle to balance local edits with background fidelity
+% (b.3) affordance
+% (a.1) (a.2)
+
+
+%KV-edit: produces unrealistic interactions due to its attention replacement mechanism 
+%% small human study: do you think the image has been edited by an AI model
+%% target image, cannyedit image, kvedit image
+
+%(1) \textbf{Inversion}: the source image is inverted into the DiT’s latent space to extract attention features at each denoising step; (2) \textbf{Source-attention injection}: these attention features from the inversion are injected into the attention computation during the generation of the target image. However, challenges remain for these methods: (1) Methods like Add-it \citep{tewel2025addit}, RF-Inversion-Edit \citep{rout2024semantic}, RF-Solver-Edit \citep{wang2024taming}, and FireFlow-Edit \citep{deng2024fireflow} struggle to balance local editability with background fidelity. While using attention features from the source image preserves background fidelity, these methods falter with substantial layout changes (e.g., adding a human subject often leads to undersized or failed object generation). (2) KV-Edit \citep{zhu2025kv} supports larger layout changes but often produces unrealistic interactions between edited regions and the original context. The core issue lies in KV-Edit’s decoupled attention mechanism, where keys and values are sourced differently (background from the inverted source vs. edits from current denoising), disrupting cross-region coherence. These challenges highlight the intrinsic difficulty in balancing local editability with background fidelity when integrating source-image attention features into the attention mechanism. 
+
+
+
+
+
+% The Canny edge guidance has been widely used in full-image generation to maintain the generated images are in desired layout. The ControlNet is a typical example which include retrained (partial) copies of the T2I model's denoising blocks to process input Canny edge maps without toughing the foundational T2I models. We adapt the Canny ControlNet for image editing in a novel way by applying selective masking: ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model to pass the layout information, we selectively mask ControlNet’s outputs in editable regions before adding, relaxing structural constraints there while enforcing them elsewhere. This allows flexible edits in target regions (guided by text) while preserving the original layout in non-edited areas, all without altering the T2I model’s attention mechanisms. 
+
+%  While Canny edge guidance has been widely used in full-image generation (e.g., ControlNet \citep{zhang2023adding}), we adapt it for image editing in a novel way by applying \textbf{selective masking}: Canny ControlNet is a plug-and-play module for foundation T2I models, incorporating (partial) copies of the T2I model's denoising blocks to process input Canny edge maps. During inference, ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model without altering the foundation model's text-image attention computation process, enabling image generation that is aligned with text prompts and guided by Canny structural information. 
+    
+%     ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model to pass the layout information, we selectively mask ControlNet’s outputs in editable regions before adding, relaxing structural constraints there while enforcing them elsewhere.
+% This allows flexible edits in target regions (guided by text) while preserving the original layout in non-edited areas, all without altering the T2I model’s attention mechanisms.
+
+
+%with \underline{R}egional \underline{T}ext guidance and \underline{S}elective \underline{C}anny control
+
+
+% \begin{enumerate}
+% \item \textbf{Regional Text Guidance with Attention Masks.}  
+% The first key innovation of RTSC-Edit is the application of \textbf{regional text control} through attention masks in the MM-DiT attention blocks during the generation of the target image. While regional text control has been extensively explored in traditional text-to-image (T2I) generation tasks \citep{xxx}, its application to image editing remains underexplored. Our method emphasizes the importance of applying regional text guidance at different levels for effective and seamless editing:
+
+% \begin{itemize}
+%     \item A \emph{local} prompt is restricted to the user-specified mask, ensuring that the desired object is generated precisely within the designated region.
+%     \item A \emph{global} prompt applies to the entire image, maintaining coherent interactions between objects and reducing the risk of unintended additions or inconsistencies (as illustrated in Figure \ref{fig1}(d.2)).
+% \end{itemize}
+    
+% \item \textbf{Selective Canny control.}   KV-edit enforces background preservation by freezing attention features in non-edit regions. However, this can lead to incomplete or artifact-prone results. To address this limitation, RTSC-Edit introduces a {softer separation} between edit and background regions without altering the T2I model's attention computations.
+
+% The \textbf{Canny edge map} \citep{Canny1986computational} captures the spatial arrangement of objects in the image through their outlines, providing a robust representation of the scene’s general layout. 
+
+% \begin{itemize}
+%     \item While Canny edge guidance has been widely used in full-image generation (e.g., ControlNet \citep{zhang2023adding}), we adapt it for image editing in a novel way by applying \textbf{selective masking}: Canny ControlNet is a plug-and-play module for foundation T2I models, incorporating (partial) copies of the T2I model's denoising blocks to process input Canny edge maps. During inference, ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model without altering the foundation model's text-image attention computation process, enabling image generation that is aligned with text prompts and guided by Canny structural information. 
+    
+%     ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model to pass the layout information, we selectively mask ControlNet’s outputs in editable regions before adding, relaxing structural constraints there while enforcing them elsewhere.
+% This allows flexible edits in target regions (guided by text) while preserving the original layout in non-edited areas, all without altering the T2I model’s attention mechanisms.
+%     \item We also incorporate the Canny control outputs in the inversion process of the source image, and reuse the obtained outputs in the new generation where the canny masking is applied. This allow not only the original layout in preserved in non-edited areas, the more visual details are also preserved ...
+% \end{itemize}
+
+% tasks, new benchmark (large scale than the 20 adding examples), human study.
+%% good trade-offs.
+
+
+   % Instead of freezing background attention features as in KV-Edit—which often yields incomplete or ``hole'' artifacts—we preserve layout with a softer prior.  
+   % A Canny edge map\,\citep{Canny1986computational} is processed by a Canny-ControlNet\,\citep{zhang2023adding}; its outputs are \emph{selectively} added to the UNet blocks of the base T2I model.  
+   % By zeroing the ControlNet features inside the edit mask, the model gains freedom to redraw that region while the untouched areas follow the original edge layout.  
+   % Crucially, this leaves the native text–image attention pathway unchanged, keeping the whole pipeline training-free.
+%\end{enumerate}
+
+%=========================
+%     \item CannyEdit is highly flexible, being able to apply different regional image editing tasks, including object transfer, adding, replacement, removal; context change and object personalization;
+%     \item We show that CannyEdit maintains high level of image quality, background preservation and text alignment on the PIE-Bench \citep{brooks2023instructpix2pix}. Since there is lack of benchmark that evaluates the editing seamlessness performance in real-world image editing, we construct a ``real-world editing seamlessness'' benchmark and conduct user study to evaluate if the users can discern the edited region or notice that the image has been modified by a model. CannyEdit shows significantly improved seamlessness compared to previous training-based and training-free methods \textcolor{red}{[Need exact numbers]}. 
+%=========================
+
+
+% pursue a new training-free image editing method that strikes a desirable balance among \textbf{text adherence}, \textbf{context fidelity}, and \textbf{editing seamlessness}. In our method, the first key technical point is  to  apply regional text control via utilizing attention masks in the MM-DiT's attention masks in the generation of target image.  While the regional text control have been much more explored in the normal T2I settings \citep{}, its application in the case of image editing is little to be explored. Hereby we showcase that both local and global text control are important: when local text control provides more precise information that which object is generated at the specific region, the global text control provides a safeguard for the harmonious object interactions, benefiting both the text adherence and editing seamlessness, avoiding the case of unintended additions as in Figure \ref{fig1}(e.1).
+
+% Second, while directly enforcing the background region unchanged via enforcing the corresponding attention features unchanged as in KV-edit would result in incomplete generation artifacts, we instead seek for a softer split of background and edit region without altering the T2I attention computation in the MM-DiT blocks. We depart from conventional attention-based methods by leveraging Canny edge guidance for editing. The Canny edge map \citep{Canny1986computational} captures the general layout information of the image, representing the spatial arrangement of objects in the scene through their outlines. The use of Canny edge guidance has been widely explored in generating the whole image, as exemplified by ControlNet \citep{zhang2023adding}. Canny ControlNet is a plug-and-play module for foundation T2I models, incorporating copies of the T2I model's denoising blocks to process input Canny edge maps. During inference, ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model without altering the foundation model's text-image attention computation process, enabling image generation that is aligned with text prompts and guided by Canny structural information. We proposed to do selectively masking Canny control allows for the local editability while preserving the layout of other areas. Outputs from the Canny ControlNet are optional for T2I generation models—when provided, generation combines text prompts and structural Canny information; otherwise, it relies solely on text prompts. We found that the T2I model is also capable of handling partial outputs from ControlNet, where the ControlNet outputs for specific regions are set to zero before being added to the T2I model, allowing layout flexibility in those regions while maintaining the layout elsewhere.
+
+
+% Therefore, our method is named RTSC-Edit: training-free Image Editing via \underline{R}egional \underline{T}ext Guidance and \underline{S}elective \underline{C}anny Control
+
+
+
+
+
+%=====================================
+
+
+
+
+% Observing the challenges, we propose a novel approach that departs from conventional attention-based methods by leveraging Canny edge guidance for editing. The Canny edge map \citep{Canny1986computational} captures the general layout information of the image, representing the spatial arrangement of objects in the scene through their outlines. The use of Canny edge guidance has been widely explored in generating the whole image, as exemplified by ControlNet \citep{zhang2023adding}. Canny ControlNet is a plug-and-play module for foundation T2I models, incorporating copies of the T2I model's denoising blocks to process input Canny edge maps. During inference, ControlNet's outputs are directly added into the corresponding blocks of the foundation T2I model without altering the foundation model's text-image attention computation process, enabling image generation that is aligned with text prompts and guided by Canny structural information.
+
+
+% Compared to Canny-guided image generation, Canny-guided regional image editing has been little explored. The reasons why Canny guidance with foundation T2I models could be useful for regional editing include the following:
+
+
+% First, the Canny ControlNet allows control over the general image layout. By using the same Canny edge map with different text prompts, edits can be made while preserving the layout. For example, Figure \ref{fig2}(a) demonstrates that FLUX.1-dev \citep{blackforest2024flux}, combined with the Canny ControlNet \citep{xlabsai2025fluxcontrolnet}, consistently places different subjects (a, a.1, a.2) in the same location based on the given edge map when different text prompts are provided.
+
+% Second, selectively masking Canny control allows for the local editability while preserving the layout of other areas. Outputs from the Canny ControlNet are optional for T2I generation models—when provided, generation combines text prompts and structural Canny information; otherwise, it relies solely on text prompts. We found that the T2I model is also capable of handling partial outputs from ControlNet, where the ControlNet outputs for specific regions are set to zero before being added to the T2I model, allowing layout flexibility in those regions while maintaining the layout elsewhere. For instance, adding a person to a dining room image introduces layout challenges where full Canny control struggles with positioning (Figure \ref{fig2}(b.1)). However, by adding partially masked ControlNet outputs, where features in the targeted region (black area in (b.Canny mask)) is zeroed out, to the T2I model, the new subject can be successfully placed in the intended location, blending seamlessly with the surrounding image context (Figure \ref{fig2}(b.2)).
+
+
+
+% Leveraging the flexibility of the Canny control, this work proposes a regional editing method named \textbf{\textit{CannyEdit}}, which applies Canny guidance to image editing. Central to the method is the \textit{selective Canny masking} mechanism that suppresses edge guidance in user-specified regions, enabling localized edits while preserving the structural image layout elsewhere. 
+
+% To further maintain background fidelity, we apply the image inversion process on the source image, which integrates a Canny ControlNet to record the Canny control signals of the source image. These signals are selectively masked and injected into the T2I denoising steps during the generation of the edited image
+
+% %To further maintain background fidelity, we apply the image inversion process on the source image, which integrates a Canny ControlNet to record the Canny control signals of the source image. These signals are selectively masked and injected into the T2I denoising steps during the generation of the edited image. 
+
+% We further combine regional text prompts with attention masks for granular control, allowing targeted textual control in specific areas without compromising global coherence. By unifying these techniques, CannyEdit emerges as a versatile and powerful regional image editing framework, capable of handling a wide range of image editing tasks.
+
+
+\subsection{}
+
+Experiment settings, Baselines, Metrics
+
+Quantitative experiments 
+
+Qualitative experiments 
+
+- Measurement of \textit{affordance}.
+Not only place on the correct position, focus on the interactions with existing contexts in the image. 
+
+\begin{table}[h!]
+\centering
+\caption{Evaluation Summary}
+ \vskip 1em
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l c c c c}
+\toprule
+Task & Definition  &  Dataset&Baselines & Evaluation (metrics) & Ablation\\
+\midrule
+Object Transfer & Replace an object with another, & & &  &\\
+ & preserving the original shape or structure. & & &  &\\ \midrule
+Replacement &Replace an object with another, & & &  &\\
+& \textbf{without} preserving the original shape or structure. & & & &\\\midrule
+
+Adding &Introduce a new object into a specific region of the scene.  & & && try different rough mask inputs: oval masks, rectangle masks, uneven masks with some randomness  \\\midrule
+Removal & Remove a specific object from the scene.& & &  &\\\midrule
+Context Change & Modify the environment or atmosphere of a specific region,& & & & \\
+& like changing clouds to rain or making the sky sunny.& & & &  \\ \midrule
+Copy-paste Synthesis & Make the affordance-aware copy-pasted object insertion.  & & & &\\
+\bottomrule
+\end{tabular}}
+\label{tab:evaluation}
+\end{table}
+
+\textcolor{red}{Key1: other options of selective Canny masking}
+\textcolor{red}{Key2: the random location of input mask}
+\textcolor{orange}{Ablation: \textbf{full Canny control/selective Canny masking}; local/target prompt only in adding, replacement, transfer (local only: not context-aware, like `two people wear the same clothes', target only: local confusion, like `a man and a woman in the image'); Only positive side in the removal, target prompt to control the whole image}
+

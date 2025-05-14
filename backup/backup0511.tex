@@ -1,0 +1,1296 @@
+\documentclass{article}
+
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2025
+
+
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{array}
+\usepackage{multirow}
+\input{maths.tex}% ready for submission
+%\usepackage{neurips_2025}
+\usepackage{graphicx} % Required for \resizebox
+\usepackage{xspace}
+\newcommand{\mmdit}{\textit{MM-DiT}\xspace}
+% to compile a preprint version, e.g., for submission to aRxiv, add add the
+% [preprint] option:
+%     \usepackage[preprint]{neurips_2025}
+
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+%     \usepackage[final]{neurips_2025}
+
+%\PassOptionsToPackage{square,numbers}{natbib}
+
+% to avoid loading the natbib package, add option nonatbib:
+\usepackage[nonatbib]{neurips_2025}
+\usepackage[square,numbers,sort]{natbib}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+\usepackage{amsmath}
+
+% \title{CannyEdit: Regional Image Editing with Canny Edge Guidance in Pretrained Diffusion Models}
+
+% \title{CannyEdit: Regional Image Editing via Selective Canny Control in Pretrained Diffusion Models}
+
+% \title{RTSC-Edit: Training-free Image Editing via \underline{R}egional \underline{T}ext Guidance and \underline{S}elective \underline{C}anny Control}
+
+\title{Canny-Rx: Selective Canny Control and {R}egional Te{x}t Guidance for Training-free Image Editing}
+
+
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  David S.~Hippocampus\thanks{Use footnote for providing further information
+    about author (webpage, alternative address)---\emph{not} for acknowledging
+    funding agencies.} \\
+  Department of Computer Science\\
+  Cranberry-Lemon University\\
+  Pittsburgh, PA 15213 \\
+  \texttt{hippo@cs.cranberry-lemon.edu} \\
+  % examples of more authors
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \AND
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+  % \And
+  % Coauthor \\
+  % Affiliation \\
+  % Address \\
+  % \texttt{email} \\
+}
+
+
+
+
+\begin{document}
+
+
+\maketitle
+
+
+\begin{abstract}
+Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by leveraging the generative priors of foundation models. However, existing methods struggle to balance text adherence in edited regions, context preservation in unedited areas, and seamless integration of edits. We introduce \textbf{Canny-Rx}, a novel training-free framework that addresses these challenges through two key innovations: (1) \textbf{\textit{Selective Canny Control}}, which masks the structural guidance of Canny ControlNet in user-specified editable regions while strictly preserving the source image’s details in unedited areas via inversion-phase ControlNet information retention. This enables precise, text-driven edits without compromising contextual integrity. (2) \textbf{\textit{Regional Text Guidance (Rx)}}, which combines localized prompts for object-specific edits with global prompts to maintain coherent scene interactions. On real-world image editing tasks ( addition, replacement, removal), Canny-Rx outperforms prior methods like KV-Edit, achieving a 2.75–10.49\% improvement in the balance of text adherence and context preservation. In terms of editing seamlessness, user studies reveal only 49.2\% of general users and 42.0\% of experts identified Canny-Rx's results as AI-edited when paired with real images without edits, versus 76.08–89.09\% for competitor methods.
+\end{abstract}
+
+%demonstrating superior seamlessness. Our work establishes a flexible, training-free paradigm for high-fidelity regional editing, advancing the practical deployment of T2I models in real-world applications.
+
+
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.99\linewidth]{figures/cat_example4.png}
+    \caption{Comparison of editing methods applied to the same example (a) of human subject insertion. The results of RFSolver-Edit \citep{wang2024taming}, (b.1–b.5), struggle to balance text adherence and context preservation. KV-Edit \citep{zhu2025kv}, using user-provided masks (c, d), enhances this balance but may introduce artifacts such as a \textbf{partially cropped subject} in (c.1) or imprecise text control, like \textbf{an additional cat} in (d.1). In contrast, our Canny-Rx delivers seamless edits with robust text adherence and background consistency as shown in (c.2) and (d.2). With larger masks like in (d), our method refines the mask during generation to further improve context preservation, as demonstrated in (d.3).}
+    \label{fig1}
+\end{figure}
+
+\section{Introduction}
+
+%, beginning with Stable Diffusion \citep{rombach2022high} and DALL$\cdot$E 3 \citep{betker2023improving}, which utilize UNet and diffusion models (DMs) \citep{rombach2022high}. More recent developments include the FLUX \citep{blackforest2024flux} and SD3 model \citep{esser2024scaling}, which adopt the diffusion transformer (DiT) architecture \citep{peebles2023scalable} and rectified flow models \citep{liu2022flow, lipman2022flow}. 
+
+
+Recent advances in text-to-image (T2I) models have achieved substantial progress in quality and controllability \citep{rombach2022high,betker2023improving,chen2023pixart,esser2024scaling,blackforest2024flux}. These advancements have enabled diverse downstream applications, utilizing their enhanced quality, efficiency, and versatility. In this work, we address one of the most challenging applications: {region-specific image editing}, which entails modifying user-specified areas (e.g., adding, replacing, or removing objects) within an image while maintaining consistency in unedited regions. This task extends standard T2I generation by introducing a critical constraint: the model must synthesize content that aligns not only with the text prompt but also with the existing visual context of the image.
+
+
+%Recent advances in text-to-image (T2I) models have demonstrated significant progress \citep{rombach2022high,betker2023improving,chen2023pixart,esser2024scaling,blackforest2024flux}. Building on these advancements, many downstream applications have emerged, leveraging the improved quality, efficiency, and versatility of these models.  In this paper, we focus on one of the most challenging applications: regional image editing. This task involves making specific edits (e.g., object adding, replacement or removal, see examples in Figure \ref{fig1}) to given areas of a generated or real-world image while keeping the rest of the image unchanged. It is effectively a conditioned T2I generation task, where the additional condition is the existing content in other parts of the image. 
+
+%The key challenge is to ensure that the edits in the specific area not only match the input text but also blend coherently with the surrounding content. Ideally, if the editing is seamless, it should be difficult for viewers to discern the edited region or notice that the image has been modified by a model. 
+
+
+
+A straightforward approach to regional editing involves collecting paired training data (before and after editing), along with corresponding text prompts, to train models for editing \citep{brooks2023instructpix2pix, zhang2023magicbrush, wasserman2024paint, li2024brushedit, hui2024hq, wei2024omniedit}. However, these methods often struggle to generalize beyond their training distribution—particularly in cases requiring realistic interactions, such as inserting people into complex scenes. This limitation is largely attributed to the lack of diverse, high-quality training data capturing such interactions.
+
+Consequently, by tapping into foundation T2I models’ ability to capture realistic object interactions from large-scale datasets, another line of research explores using these foundation models for regional editing in a training-free manner. While these methods were initially developed using UNet-based diffusion models \citep{hertz2022prompt, cao2023masactrl, tumanyan2023plug}, recent work has shifted to leveraging more advanced rectified-flow-based multi-modal diffusion transformers (MM-DiTs) \citep{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv}, predominantly designed based on the leading open-source DiT model, FLUX.1-dev \citep{blackforest2024flux}.
+
+
+%These newer DiT-based methods (\citep{rout2024semantic, wang2024taming, deng2024fireflow, tewel2025addit, zhu2025kv}) have demonstrated improved editing performance and greater flexibility compared to earlier UNet-based approaches, benefiting from the stronger generative power and the modular architecture of DiTs.
+
+
+
+
+Despite their effectiveness in certain editing tasks, these methods often struggle with a critical challenge: balancing precise modifications to specific image regions based on the provided target text prompt (\textbf{\textit{Text Adherence}}) while maintaining the integrity of the unedited areas (\textbf{\textit{Context Fidelity}}). This challenge is referred to as the \textit{editability-fidelity trade-off}. While hyperparameter selection can sometimes identify an acceptable trade-off point, we show that achieving an ``optimal'' balance \textbf{could be infeasible}, especially when the image layout undergoes substantial changes. In Figure \ref{fig2}, we present quantitative results evaluating context fidelity and text adherence across 20 examples of using RFSolver-Edit \citep{wang2024taming} to insert a human subject into a real-world image (Figure \ref{fig1}(a) shows an example from the testing set). Context fidelity is measured via DINO embedding \citep{caron2021emerging} cosine similarity between source and edited images, while text adherence calculates \( p_{\text{gdino}}(\text{edited}) - p_{\text{gdino}}(\text{original}) \), where \( p_{\text{gdino}} \) denotes GroundingDINO's \citep{liu2024grounding} top-1 bounding box probability for the subject (e.g., ``a lady''). The results of different points for the RFSolver-Edit in the figure are created by varying the number of denoising steps where attention feature injection is applied, from 1 (injected only in the first step) to 10. Figure \ref{fig2} shows that the outputs either adhere well to the text or preserve the image context effectively, but no configuration achieves a strong balance between the two. Examples of edits under different injection steps are shown in Figures \ref{fig1} (b.1-b.5).
+
+
+A recent study, KV-Edit \citep{zhu2025kv}, addresses the editability-fidelity trade-off by reintroducing source-image attention features specifically within user-selected regions. During the attention computation in each denoising block, the keys and values within the background area are maintained as they were in the inversion stage, while the queries, keys, and values related to the target text prompt and the designated edit area are allowed to evolve. Although KV-Edit significantly improves the trade-off (as indicated by the orange points in Figure \ref{fig2}) compared to the RFSolver-Edit, it is still with its flaws. In scenarios such as object addition, where precise masking is challenging (see Figures \ref{fig1}(c)(d)), two primary issues emerge: (1) Directly replacing background features during attention computation can result in artifacts like disconnected contexts or partially cut subjects (see Figures \ref{fig1}(c.1)), and (2) The text control over the edited areas can be imprecise, leading to unintended additions, such as the partially generated extra cat seen in Figure \ref{fig1}(d.1). These imperfections in KV-Edit underline a critical aspect of editing quality: \textbf{\textit{Editing Seamlessness}}. The visible disconnection between the background and the edited regions poses a significant challenge in achieving a high level of editing seamlessness.
+
+%which assesses whether users can readily identify if an image has been altered by AI. Seamlessness can be assessed through well-designed user studies. For instance, a user study presented 20 KV-Edit human-insertion images mixed with original ones to 20 user without technical background in T2I generation.\footnote{Participants did not view the source image alongside its edited counterpart in a single run.} They judged whether each image was AI-edited, revealing KV-Edit's low editing seamlessness, as the detection rate (xxx\%) was notably higher than the baseline for unedited images (xxx\%).
+
+
+%While segmentation models \citep{kirillov2023segment,ravi2024sam} can be used to refine masks to remove such artifacts (e.g., Figure \ref{fig1}(e.3)), the results can still appear unnatural, as seen when the lady interacts with the ``removed'' cat rather than the original one.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figures/figure_tradeoff2.png}
+    \caption{Comparison of context preservation and text adherence for RFSolver-Edit, KV-Edit, and our proposed Canny-Rx, evaluated on 20 examples of adding human subjects. Points for RFSolver-Edit and KV-Edit represent different hyperparameter settings (RFSolver-Edit: attention injection steps; KV-Edit: skip steps, reinitialization). RFSolver-Edit struggles to balance context preservation and text adherence effectively, while KV-Edit achieves a notably improved trade-off. Our Canny-Rx method further improves this trade-off, significantly increasing text adherence while maintaining comparable context preservation. }
+    \label{fig2}
+\end{figure}
+
+
+%Achieving all three simultaneously is inherently challenging because the objectives often conflict. For instance, leaving an image untouched yields perfect contextual fidelity but offers no adherence to the given target text prompt. Conversely, forcing the background region to remain identical to its original appearance may safeguard fidelity, yet it can impair seamlessness—e.g., removing a person while leaving the cast shadow makes the edit conspicuous.
+
+
+%A small-scale study involving the 20 images of human insertion edited by KV-Edit, mixed with original images, was presented to 100 first-year undergraduate students without a technical background in T2I generation.\footnote{Note that participants were not shown both the source image and its edited counterpart simultaneously in one run of the study.} The participants were asked to judge if each image was AI-edited. The study revealed that KV-Edit produced images with noticeably low editing seamlessness, as the rate of participants identifying the images as AI-edited (xxx\%) was significantly high compared to a baseline rate for the unedited images (xxx\%).
+
+
+% Canny-\underline{Rx}: Selective Canny Control and \underline{R}egional Te\underline{x}t Guidance for Training-free Image {E}diting
+
+
+Witnessing the imperfections of previous methods, in this work, We introduce \textbf{Canny-Rx}—a training-free pipeline for image editing based on pretrained diffusion models and their Canny ControlNet components \citep{zhang2023adding}. The method is designed to reconcile the three competing goals of {text adherence}, {context fidelity}, and {editing seamlessness}. 
+
+Canny-Rx relies on two complementary mechanisms: (1) \textbf{Selective Canny control}.  Canny ControlNet \citep{zhang2023adding} is a plug-and-play module for foundation T2I models, employing mirrored denoising blocks’ structures to process input edge maps. It injects layout guidance by adding its outputs to corresponding blocks in the base T2I model. By integrating Canny ControlNet \citep{zhang2023adding} with a selective masking strategy, we relax structural constraints in user-specified editable regions (enabling text-guided edits) while strictly preserving original layouts elsewhere. The ControlNet’s outputs, masked and added during generation, are derived from the inversion of the source image to enhance context fidelity. (2) \textbf{Regional Text Guidance (Rx)}.  While regional text guidance has been extensively explored in traditional T2I generation tasks \citep{chen2024training,yang2024mastering,feng2024ranni,wu2024self,ma2024hico,zhang2024creatilayout,chen2024region} to enable region-wise compositional generation, its application to image editing remains underexplored. We propose a regional prompting strategy for image editing: \emph{local edit prompts} are confined to user-specified edit regions, ensuring the desired objects are generated precisely within the specific areas, while a \emph{target prompt}, describing the global image context after editing, applies to the entire image, maintaining coherent interactions between objects and reducing the risk of unintended additions or inconsistencies. Figure \ref{fig1}(a) shows an example of local and target prompts. We will show that both prompts are important for the text adherence and seamless editing.  Following prior work \citep{chen2024training}, the text control is implemented via attention masks to enforce spatial constraints in a training-free manner.
+
+%Our key innovation lies in selective masking: by masking ControlNet’s outputs in user-specified editable regions before their addition to the T2I model, we relax structural constraints in regions where edits occur (thereby enabling text-guided edits) while strictly preserving the original layouts elsewhere.  To further enhance context fidelity, we also incorporate the Canny ControlNet during the inversion of the source image. The ControlNet's outputs that are masked and added into the generation of the edited image are obtained from this inversion process.
+
+ %Our method emphasizes the importance of applying regional text guidance at different levels for effective and seamless editing:
+
+In summary, we make the following key contributions in this paper:
+
+\vspace{-3mm}
+\begin{itemize}
+\item  We propose a novel training-free approach that preserves image context via source image ControlNet information, unlike previous methods relying on attention features. Our selective Canny control enables edits on specific regions, and combined with regional text guidance, achieves seamless edits without retraining or altering the T2I model's core attention mechanisms.
+
+
+\item  The proposed Canny-Rx serves as a flexible and versatile editing framework applicable to various regional image editing tasks, including adding, replacement, removal, object transfer, and context changes. 
+
+\item Our method outperforms training-free editing methods like KV-edit \citep{zhu2025kv}, with improvements of 2.75\%, 5.11\%, and 10.49\% on the editability-fidelity balance for replacement, adding, and removal tasks on real-world images. It also outperforms training-based methods like BrushEdit \citep{li2024brushedit} and Powerpaint \citep{zhuang2023task}. In terms of editing seamlessness, in a user study where the edited results are paired with real-world images without editing, only 49.2\% of the general public and 42.0\% of AIGC experts identified our results AI-edited, compared to 76.08\% and 82.0\% for the second-best method, illustrating significant advancements in making AI edits less detectable.
+
+\end{itemize}
+% 
+
+% \vspace{-1mm}
+% \begin{itemize}
+% \item Divergent from previous training-free methods that rely on attention features to maintain source image information. In this work, we propose another possibility, to preserve the image context via source image's ControlNet information and propose selective canny control to allow editabiity on the speciifc image region. Combined with regional text guidance that provides precise text control for the edit region, our approach can achieve more seamless edits without  requiring retraining;
+% %altering the T2I model’s core attention mechanisms or
+% \item The proposed Canny-Rx serves as an editing framework, can flexibly apply to different regional image editing tasks, including adding, replacement, removal, object transfer (replacement with shape exactly unchanged) context change and so on. As it does not altering the T2I model’s core attention mechanisms, it has potentials to combine with other modules like IP-Adapter, Pose ControlNet and so on to support more tasks;
+% \item Performance. Compared to the training-free editing methods that maintain the editability-fidelity trade-off best, KV-edit, our method enjoy 2.75\%, 5.11\% 10.49\%  improvement on the trade-off score in terms of replacement, adding and remvoal on the real-world image editing involving complex interaction with context. Also, our method beat the open-souce training-based methods (like BrushEdit \citep{li2024brushedit}, Powerpaint\\citep{zhuang2023task}). In terms of editing seamlessness, we conduct an user study. when paired with our editing results with the real-world images, we ask which image is more likely to be AI-edited, the users hardly random pick the previous while users pick results of other methods as AI-edited easily. The pick rate as AI-edited on our method for general public and AIGC expert users is 49.2\% and 42.0\% respectively while the second-best number achieved on evaluated previous open-source methods are 76.08\% and 82.0\% respectively. 
+
+
+% \end{itemize}
+
+% tasks, performance
+
+
+
+% In summary, we make the following key contributions in this paper:
+% \vspace{-1mm}
+% \begin{itemize}
+%     %\item To the best of our knowledge, our proposed CannyEdit is the first Canny-guided regional image editing method, incorporating the selective Canny control to enable both the local editability and background fidelity;
+%     \item To the best of our knowledge,  our proposed CannyEdit CannyEdit is the first Canny-guided regional image editing framework built on foundation T2I models. We introduce a selective Canny masking mechanism that flexibly suppresses edge guidance in user-specified regions, enabling precise local edits while preserving the structural layout. %and background fidelity of unedited areas through image inversion with integrated Canny ControlNet signals.
+%     \item CannyEdit is highly flexible, being able to apply different regional image editing tasks, including object transfer, adding, replacement, removal; context change and object personalization;
+%     \item We show that CannyEdit maintains high level of image quality, background preservation and text alignment on the PIE-Bench \citep{brooks2023instructpix2pix}. Since there is lack of benchmark that evaluates the editing seamlessness performance in real-world image editing, we construct a ``real-world editing seamlessness'' benchmark and conduct user study to evaluate if the users can discern the edited region or notice that the image has been modified by a model. CannyEdit shows significantly improved seamlessness compared to previous training-based and training-free methods \textcolor{red}{[Need exact numbers]}. 
+% \end{itemize}
+
+
+% 1. 是否生成
+% 2. better edit
+% 3. 给原图跟生成图，问哪一张是生成图
+% 4. 给生成图，问哪一块是生成的
+
+%==================================
+% Two trade-offs:
+
+% Local editability vs. Background consistency
+
+% Local controllability vs. Global affordance
+
+% To make a good balance on the two trade-offs, we propose an editing method based on the Canny layout control via ControlNet. To maintain the background consistency, we apply the Canny control on the background to maintain the layout of the background unchanged.  To allow the local editability, the related region in the Canny control is revised to be zero. In the later denoising steps, blending operation is applied to ensure the visual details of the background is unchanged on top of the maintained layout preserved by the ControlNet. Note that the unchanged background layout also makes sure that the generated object is semantically fitted with the original environment well if the objects can be generated.
+
+% To enable a good balance of local controllability and global affordance, we apply regional control with attention mask where local editing text prompts is cross-attended with edited image region, and a context prompt which describes the image after editing is cross-attended  with whole image.
+
+%==================================
+
+
+
+%  4. Our Canny control-based method: \textcolor{red}{\textbf{why Canny? why Canny controlnet?}}
+
+% trade-offs: local editability vs. background fidelity; affordance.
+% not to do attention sharing
+
+
+
+
+
+
+
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{image2.png}
+%     \caption{Group Space-Progress2504-paperfigures-figure2_v0428.png.}
+%     \label{fig2}
+% \end{figure}
+
+
+
+\section{Related work}
+\subsection{Training-based image editing methods}
+
+A significant number of studies focus on training-based methods for image editing. Although it is beneficial to teach model to learn to follow instructions, it is very expensive to collect high-quality image editing data. Therefore, many works propose to use synthetic data. For example, InstructPix2Pix \citep{brooks2023instructpix2pix} uses a language model (GPT-3) and a text-to-image model (Stable Diffusion) to generate a synthetic dataset of image editing examples. Similarly, HQ-Edit \citep{hui2024hq} uses GPT-4V and DALL-E 3. These methods, which reply on synthetic data, may not capture all real-world nuances, potentially limiting performance on complex edits.
+
+A different line of work collects real-world images and invites humans to manually annotate data or use task specialists (pre-trained image-editing models) to generate target images. MagicBrush \citep{zhang2023magicbrush} consists of 10K manually annotated real image editing triplets (source image,
+instruction, target image), but it is very difficult to scale it up.  PIPE (Paint by Inpaint Edit) \citep{wasserman2024paint} contains approximately 1 million image pairs, where objects are removed from source images using SD-inpainting model \footnote{https://huggingface.co/runwayml/stable-diffusion-inpainting}, but it is only focused on object adding task. OmniEdit \citep{wei2024omniedit} is a generalist model trained on over 1 million pairs covering diverse editing skills, leveraging the supervision from seven specialist models. The computational costs of constructing the datasets and training the model are significant, as they scale with the complexity of the models and the volume of data being processed. 
+
+The challenge of dataset scalability limits the generalization performance of training-based methods. We argue that training-free methods are better alternatives. Not only because they are computationally efficient, but also because they preserve the image quality of the original text-to-image model, leading little concerns on overfitting or degradation.
+
+
+\subsection{Training-free image editing methods}
+
+For training-free methods, it is crucial to select a strong text-to-image model as foundation. The modern text-to-image models change from diffusion-based UNet models (e.g., stable diffusion \citep{rombach2022high}) to rectified-flow-based transformer models (e.g., FLUX.1-dev \citep{blackforest2024flux}). Prompt-to-Prompt \citep{hertz2022prompt} is one of the early works which manipulated the cross-attention maps in the UNet model between text tokens and image regions. Attention manipulation, particularly cross-attention or self-attention, becomes a common practice in many training-free image editing methods\citep{cao2023masactrl,rout2024semantic,deng2024fireflow,tewel2025addit,zhu2025kv}.
+
+Inversion is another important strategy to improve the integrity of unedited regions. Methods like RFSolver-Edit \citep{wang2024taming} and FireFlow \citep{deng2024fireflow} enhance inversion precision for rectified flow (ReFlow) models (e.g., FLUX) with more precise numerical solvers. The inverted noise is adopted in early stage of the denoising process to preserve the structural information of the source image. KV-Edit \citep{zhu2025kv} provides better preservation of background because the background tokens were preserved rather than regenerated during the denoising process. Furthermore, the attention features (query, key and value) during inversion process will be extracted and further used in the denoising process. However, these methods may struggle with dissimilar source and target prompts, as mutual attention alignment between source tokens in inversion and the target tokens in denoising assumes some structural similarity. This problem becomes severe when the target prompt attempts to change the source image layout dramatically.
+
+% UNet-based: P2P;
+% DiT-based: how to do inversion, how to do source-attention injection.
+
+\subsection{Controllability in T2I generation}
+
+Introducing controllability in text-to-image generation is a significant advancement, as it enables precise manipulation of images, paving its way to broad applications, like digital arts and gaming.
+
+ControlNet \citep{zhang2023adding} is a pivotal framework that integrates multiple conditional inputs, for example, using canny edge map for structural control, using depth map for spatial control, and using skeleton map for pose control. We find Canny ControlNet a suitable framework for image editing, especially when we need to preserve the structural similarity. Although some other methods like \citep{feng2024ranni} provide solutions for image generation given layout control (boxes and descriptions), they finetuned the base model on custom datasets. we think Canny ControlNet may better preserve the generation capacity of the original T2I model as it only finetunes the ControlNet branch.
+
+\textcolor{red}{Add related works of layout control}
+% layout control in \citet{feng2024ranni,yang2024mastering} and the subject control in \citet{ye2023ip,wang2024instantid}. 
+
+\section{Method}
+\subsection{Preliminaries}
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/flux-double-controlnet.pdf}
+    \caption{The structure of Multi-stream block in FLUX  and in ControlNet. Timesteps, positional embeddings, and guidance inputs are ignored for simplicity. The green tokens are image tokens (or canny edge map tokens), and yellow tokens are text tokens.}
+    \label{fig:flux_controlnet}
+\end{figure}
+
+
+FLUX \citep{blackforest2024flux} is a Diffusion Transformers (DiTs) model which accepts text prompts and image tokens as inputs. FLUX has two types of attention blocks to process the multi-modal inputs: single-stream blocks and multi-stream blocks. Single-stream blocks use the same projection matrices for both text and image input, while multi-stream blocks use separate projection matrices. FLUX is composed of a series of multi-stream blocks followed by a series of single-stream blocks. However, the ControlNet of FLUX only includes copies of two multi-stream blocks. To better visualize the FLUX-ControlNet structure, we show one multi-stream block in Fig. \ref{fig:flux_controlnet} (a) and its ControlNet counterpart in Fig. \ref{fig:flux_controlnet} (b).
+
+
+As shown in Fig. \ref{fig:flux_controlnet} (a), the image tokens and text tokens are fed into different $(W_Q, W_K, W_V)$ to obtain queries, keys, and values. Afterwards, the concatenated tensors are fed into the Attention module, as represented by:
+\begin{equation}
+    \mathcal{A} = \textit{softmax}([Q_{txt}, Q_{img}] [K_{txt}, K_{img}]^\top / \sqrt{d_k}),\quad h =  \mathcal{A} \cdot [V_{txt}, V_{img}],\quad h_{img} = \mathcal{A}_{img} \cdot [V_{txt}, V_{img}] \label{eq:flux_attention}
+\end{equation}
+where $[Q_{txt}$, $Q_{img}]$ are the concatenated tensor of the text and the image queries. $d_k$ is the dimension of the key vectors. $\mathcal{A}_{img}$  denotes the rows of $\mathcal{A}$ corresponding to the image tokens. The same applies to keys and values.
+
+In Fig. \ref{fig:flux_controlnet} (b), the dashed lines indicate the computation flow of the Canny ControlNet. The ControlNet receives canny edge map tokens and text tokens as conditions. The image tokens input from the Flux block is also added with the canny edge map tokens. Then the image tokens outputs of the FLUX block and the ControlNet block are combined using:
+
+\begin{equation}
+h_{\text{img}} \leftarrow h_{\text{img}} +ZeroConv(h^{\prime}_{\text{img}}),
+\label{eq:controlnet_add}
+\end{equation}
+
+$ZeroConv$ is a convolutional layer initiated with zero weights before ControlNet is trained.
+
+%% ODE-related
+% Rectified Flow (ReFlow) \citep{liu2022flow} is a generative method that transforms a Gaussian noise distribution to a real data distribution. Unlike DDIM, which relies on stochastic differential equations (SDEs), RF defines a deterministic transport map between distributions via ordinary differential equations (ODEs).
+
+% In the discretized denoising process, suppose that the RF model starts from Gaussian noise $\mathbf{z}_{t_{N}}\in\mathcal{N}(0,\boldsymbol{I})$, where $t=\{t_{N},...,t_{0}\}$. The RF model is parameterized by $v_{\theta}$, and its inputs are the timestep $t_{i}$, the sample at this timestep $\mathbf{z}_{t_{i}}$, and the condition $C$ (i.e., textual prompt). The RF model predicts $\boldsymbol{v}_\theta(C,\mathbf{z}_{t_i},t_i)$ and takes one step towards the target $\mathbf{z}_{t_{0}}$. Suppose $\Delta t=  t_{i} - t_{i-1}$, the ODE of the denoising process is represented by $\mathbf{z}_{t_{i-1}}=\mathbf{z}_{t_i}-\Delta t\cdot \boldsymbol{v}_\theta(C,\mathbf{z}_{t_i},t_i)$.
+
+% Similarly, we can derive the ODE of the inversion process, which starts from the target distribution and transforms it to a Gaussian noise distribution. To differentiate the intermediate states, we denote the sample during inversion as $\mathbf{x}_{t_{i}}$, where $t=\{t_{0},...,t_{N}\}$. The ODE of the inversion process is represented by $\mathbf{x}_{t_{i}}=\mathbf{x}_{t_{i-1}}+\Delta t \cdot \boldsymbol{v}_\theta(C,\mathbf{x}_{t_i},t_i)$.
+
+% The ReFlow ODEs are solved using the Euler method, which is first-order. RFSolver-Edit \citep{wang2024taming} argues that using a second-order solver for ODEs can provide more precise results. Taking inversion process as an example, RFSolver-Edit introduces an acceleration term:
+
+% \begin{equation}
+% \mathbf{x}_{t_{i}}=\mathbf{x}_{t_{i-1}}+\Delta t \cdot \boldsymbol{v}_{\theta}(C, \mathbf{x}_{t_{i-1}}, t_{i-1}) + \frac{1}{2} \Delta t^{2} \cdot \boldsymbol{v}^{(1)}_{\theta}(C, \mathbf{x}_{t_{i-1}}, t_{i-1})
+% \label{eq:rf_solver_inversion}
+% \end{equation}
+
+% $\boldsymbol{v}^{(1)}_{\theta}(C, x_{t_{i-1}}, t_{i-1})$ is the first-order derivative. Eq. \ref{eq:rf_solver_inversion} improves the precision but increases the computational cost.
+
+% To reduce computational cost while preserving the precision of the second-order method, Fireflow \citep{deng2024fireflow} proposes to use the midpoint cache from memory. Each inversion step is divided into two sub-steps:
+
+
+% \begin{equation}
+% \mathbf{\hat{x}}_{t_{i-1} + \frac{\Delta t}{2} }=\mathbf{x}_{t_{i-1}}+ \frac{\Delta t}{2} \cdot \underbrace{\boldsymbol{v}_{\theta}(C, \mathbf{x}_{t_{i-2}+\frac{\Delta t}{2}}, t_{i-2}+\frac{\Delta t}{2})}_{\text{load from memory}}
+% \label{eq:fireflow_step1}
+% \end{equation}
+
+
+% \begin{equation}
+% \mathbf{x}_{t}=\mathbf{x}_{t_{i-1}}+ \Delta t \cdot \underbrace{\boldsymbol{v}_{\theta}(C, \mathbf{\hat{x}}_{t_{i-1} + \frac{\Delta t}{2}}, t_{i-1} + \frac{\Delta t}{2})}_{\text{run \& save to memory}}
+% \label{eq:fireflow_step2}
+% \end{equation}
+
+% To balance the inversion precision and computational cost, we adopt Fireflow solver in our method. 
+
+\subsection{Inversion-Denoising Framework}
+
+\textcolor{red}{Mention FireFlow and Figure 4 is not precise.}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/framework.pdf}
+    \caption{The framework of Canny-Rx in \textbf{objection insertion task} consists of two process. 1) The inversion process starts with source image (the background), the source prompt $P_{source}$, and the canny edge map of the source image. Using model prediction, we transform source image to the inverted noise. 2) The denoising process starts with the inverted noise from process 1), the canny edge map of the source image, and additional inputs. The additional inputs include the mask for selective canny control, and the $P_{source}$, $P_{target}$, and $P_{local}$ for regional text guidance. With denoising process, we transform the inverted noise to the target image.}
+    \label{fig:framework}
+\end{figure}
+
+The framework of Canny-Rx in \textbf{object insertion task} is shown in Fig. \ref{fig:framework}. The frameworks in other tasks, like removal and replacement, are similar to Fig. \ref{fig:framework}, with some variances in the textual prompts inputs and mask inputs. More details will be discussed in Sec. \ref{sec:other_tasks}. 
+\subsection{Selective Canny Control}
+%regional Canny relaxation
+
+The canny edge map is a source of guidance for layout preservation. In object insertion task, the background needs to be preserved. Therefore, we always apply canny control for the background region. However, in object insertion task, the user provides a coarse oval mask indicating the region where the subject should be inserted, and we call it the editable region. In this region, we aim to relax the canny control as that the target subject can be inserted into the editable region.
+
+The canny control in the editable region is relaxed by the modification of Eq. \ref{eq:controlnet_add} in the FLUX-ControlNet block. We change it to:
+
+\begin{equation}
+h_{\text{img}} \leftarrow h_{\text{img}} + (1-M) \odot ZeroConv(h^{\prime}_{\text{img}}),
+\label{eq:selective_canny}
+\end{equation}
+
+$M$ is the mask indicating the editable region which is applied to the ControlNet output. The zero values in $M$ correspond to the background region, and the non-zero values correspond to the editable region. $\odot$ denotes element-wise multiplication.
+
+
+\subsection{Regional Text Guidance}
+
+
+Without losing generality, we assume the image is separated into two regions: $I_A$ and $I_B$. There are two local prompts,  $P_A$ and $P_B$, which describe the visual information of corresponding image region only. There is a global prompt $P_{AB}$ which describes the whole image region.
+
+To apply  multi-level and multi-region text guidance, we apply Region-Aware Attention \citep{xxx} in the self-attention module of FLUX blocks (Eq. \ref{eq:flux_attention}). The query tensor is a concatenated tensor of the image tokens of two image regions and the text tokens of three prompts. We denote the query tensor as the concatenated features $ Q= [Q_{I_A}, Q_{I_B}, Q_{P_A}, Q_{P_B}, Q_{P_{AB}}]$. So are the keys $K$ and values $V$. The masked attention operation becomes:
+
+\begin{equation}
+\mathcal{A} = Softmax(\frac{QK^T}{\sqrt{d_k}} \odot \mathcal{M}) V
+\label{eq:masked_attention}
+\end{equation}
+
+$ \mathcal{M}$ is a self-attention mask between the concatenated image-text features. Given the modality correspondence, $ \mathcal{M}$ can be denoted as:
+
+\begin{equation}
+    \mathcal{M} = \begin{bmatrix}
+        \mathcal{M}_{I2I} &  \mathcal{M}_{I2P} \\
+        \mathcal{M}_{P2I} &  \mathcal{M}_{P2P} 
+    \end{bmatrix}
+\end{equation}
+
+Suppose the text tokens lengths of $P_A$, $P_B$, and $P_{AB}$ are denoted by $L_{P_A}$, $L_{P_B}$, $L_{P_{AB}}$, we can write $\mathcal{M}_{P2P}$ as:
+
+\begin{equation}
+    \mathcal{M}_{P2P} = diag(\mathbf{1}_{L_{P_A}\times L_{P_A}}, \mathbf{1}_{L_{P_B} \times L_{P_B}}, \mathbf{1}_{L_{P_{AB}} \times L_{P_{AB}}})
+\end{equation}
+
+This text-to-text attention mask prevents information leakage among different text prompts. $\mathbf{1}_L$ is an all-ones matrix with shape $L \times L$.
+
+Suppose the image tokens lengths of $I_A$, $I_B$ are denoted by $L_{I_A}$, $L_{I_B}$, we write $\mathcal{M}_{P2I}$ as:
+
+\begin{equation}
+    \mathcal{M}_{P2I} = \begin{bmatrix}
+        diag(\mathbf{1}_{L_{P_A} \times L_{I_A}}, \mathbf{1}_{L_{P_B} \times L_{I_B}})  \\
+        \mathbf{1}_{L_{P_{AB}} \times (L_{I_{A}} + L_{I_{B}})}
+    \end{bmatrix}
+\end{equation}
+
+$diag(\mathbf{1}_{L_{P_A} \times L_{I_A}}, \mathbf{1}_{L_{P_B} \times L_{I_B}})$ indicates the local prompt tokens only attend to the local image tokens with correspondence: $P_A \rightarrow I_A$ and $P_B \rightarrow I_B$. $\mathbf{1}_{L_{P_{AB}} \times (L_{I_{A}} + L_{I_{B}})}$ indicates that the global prompt tokens attend to every region: $P_{AB} \rightarrow I_A, I_B$.  $\mathcal{M}_{I2P}$ follows the symmetric correspondence, therefore, $\mathcal{M}_{I2P} =  \mathcal{M}_{P2I}^T$.
+
+
+\begin{equation}
+    \mathcal{M}_{I2I} = diag(\mathbf{1}_{L_{I_A}\times L_{I_A}}, \mathbf{1}_{L_{I_B} \times L_{I_B}})  + \begin{bmatrix}
+         \mathbf{0}_{L_{I_A}\times L_{I_A}} & \mathbf{0}_{L_{I_A}\times L_{I_B}} \\
+         \mathbf{1}_{L_{I_A}\times L_{I_B}}  & \mathbf{0}_{L_{I_B}\times L_{I_B}} 
+    \end{bmatrix}
+    \label{eq:i2i_attention_mask}
+\end{equation}
+
+The first term in Eq. \ref{eq:i2i_attention_mask} indicates that image tokens only attend to each other within each region. However, we allow information leakage from the non-editable region to editable region for better affordance. Therefore, we introduce the second term in Eq. \ref{eq:i2i_attention_mask}. This allows information leakage from region $A$ to region $B$, but not in the reverse direction.
+
+In object insertion task, $P_A$ is the source prompt describing the background region $I_A$, $P_B$ is the local edit prompt describing the subject to be inserted in the editable region $I_B$. Finally, the target prompt is the global prompt $P_{AB}$ describing the whole target image.
+
+
+% \subsection{cyclic blending}
+
+\subsection{Extensions to other tasks} \label{sec:other_tasks}
+\begin{table}[h!]
+\centering
+\caption{The mask and prompts inputs for different image editing tasks}
+ \vskip 1em
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{l l l}
+\toprule
+Task & Mask for Canny Control & Prompts for Regional Guidance \\
+\midrule
+Object Insertion & coarse mask or &  $P_{source} \leftrightarrow I_{non-edit}$,\\
+ & segmentation mask  &  $P_{local} \leftrightarrow I_{edit}$,  $P_{target} \leftrightarrow  [I_{non-edit}, I_{edit}]$  \\\midrule 
+
+Object Replacement & segmentation mask & $P_{local} \leftrightarrow I_{edit}$,  $P_{target} \leftrightarrow [ I_{non-edit}, I_{edit}]$   \\  \midrule
+Object Removal & segmentation mask  & Positive prompts:  \\
+& & \text{"empty background"} $\leftrightarrow I_{edit}$, $P_{target} \leftrightarrow  [I_{non-edit}, I_{edit}]$  \\  
+& & Negative prompts:  \\
+& &  $P_{local} \leftrightarrow I_{edit}$,  $P_{source} \leftrightarrow  [I_{non-edit}, I_{edit}]$ \\ 
+
+\bottomrule
+\end{tabular}}
+\label{tab:tasks}
+\end{table}
+
+
+
+Our method is naturally extendable to other image editing tasks, like object replacement and object removal. In both tasks, the target object to be edited needs to be located and segmented ahead. We used out-of-box instance segmentation tool, Language SAM \citep{xx}, to get the segmentation mask of the target object. More details about extracting segmentation masks can be found in Appendix.
+
+
+Table \ref{tab:tasks} lists the mask and prompts inputs for different image editing tasks. The object insertion task can accept a coarse mask (brush-like or oval mask) or a fine-grained segmentation mask for selective canny control, and three prompts for regional text guidance. 
+
+\subsubsection{Object replacement}
+
+ For the object replacement task, the source prompt is only used in the inversion process, not applied in the denoising process. In other words, we only use the local edit prompt and the target prompt for regional text guidance.
+
+ 
+%\subsection{Object transfer with full Canny control}
+
+%\textcolor{red}{Examples (Figure \ref{fig1}) to showcase that direct regional control cannot make edits. However, selective Canny masking can allow the local editability.}
+
+
+%\subsection{Regional image editing with selective Canny control}
+
+% \subsubsection{Object adding with mask refinement}
+
+% Preservation of original information in edited region
+% Mask acquisition of the generated objects
+% Synthetic Canny
+% Cyclical blending 
+%To allow the generation of collateral objects but maintain the background mainly unchanged, we do the cyclical blending with partial blending on the background region with the inversion latent.
+
+\subsubsection{Object removal}
+
+We use classifier-free guidance (CFG) for the object removal task. The positive prompts consist of a default local edit prompt (i.e., "empty background") and a target prompt. The negative prompts consist of the local edit prompt and the source prompt. 
+
+
+\subsubsection{Personalization with copy-paste synthesis}
+%\subsection{Extension to different tasks}
+
+
+
+
+% \begin{table}[h!]
+% \centering
+% \caption{Technical Summary}
+%  \vskip 1em
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{l l l l l}
+% \toprule
+% Task & Definition & Inputs & Canny Guidance & Regional Control\\
+% \midrule
+% Object Transfer & Replace an object with another, & source prompt, target prompt, local prompt,  & full Canny control& target prompt - whole image,  \\
+%  & preserving the original shape or structure. & source image + mask of object to be replaced. & & local prompt - edit region. \\ \midrule
+% Replacement &Replace an object with another, & source prompt, target prompt, local prompt, & selective Canny masking& target prompt - whole image,  \\
+% & \textbf{without} preserving the original shape or structure. & source image + mask of object to be replaced. & &local prompt - edit region.  \\\midrule
+% Context Change & Modify the environment or atmosphere of a specific region,&source prompt, target prompt, local prompt, &selective Canny weakening  & target prompt - whole image, \\
+% & like changing clouds to rain or making the sky sunny.& source image + mask of  environment to be changed. & &local prompt - edit region.  \\ \midrule
+% Adding &Introduce a new object into a specific region of the scene.  &source prompt, target prompt, local prompt,   &selective Canny masking & target prompt - whole image,   \\
+% &&source image + a rough mask for region of added object to be added. & &source prompt - BG region, local prompt - edit region. \\\midrule
+% Removal & Remove a specific object from the scene.& source prompt, target prompt, & selective Canny masking &  {Pos.}:  target prompt - whole image, \\
+%  & & neg. local prompt, (pos. local prompt), &   & pos. local prompt (default, `empty background') - edit region; \\
+
+%  && source image + mask of object to be removed.&&Neg.: source prompt - whole image, neg. local prompt - edit region. \\\midrule
+
+
+
+% Copy-paste Synthesis & Make the affordance-aware copy-pasted object insertion. & source prompt, target prompt, local prompt,& synthesis Canny control +  & target prompt - whole image,\\
+%  & &source image + synthesis image w/ reference object pasted. &selective Canny masking & source prompt - BG region, local prompt - edit region.\\
+% \bottomrule
+% \end{tabular}}
+% \label{tab:tasks}
+% \end{table}
+
+
+
+
+
+\section{Experiments}
+
+
+\subsection{Experimental Setup}
+
+baselines, implementation details, datasets
+
+\textbf{Baselines.} Two kinds of methods are compared with our method: (1) Training-based approaches including BrushEdit~\cite{li2024brushedit} based on DDIM~\cite{song2022denoisingdiffusionimplicitmodels}, FLUX Fill~\cite{flux2024} and PowerPaint-Flux~\cite{zhuang2023task} based on Rectified Flow~\cite{liu2022flow}. (2) Training-free approaches including P2P~\cite{hertz2022prompt}, MasaCtrl~\cite{cao2023masactrl} based on DDIM, and RFSolver-Edit~\cite{wang2024taming}, RF-Inversion~\cite{rout2024semantic}, KV-Edit~\cite{zhu2025kv} based on Rectified Flow. In summary, there are eight prevalent image inpainting and editing methods for evaluation. The original PowerPaint is based on DDIM, for fairness, we trained a new version based on Rectified Flow with the same datasets.
+
+\textbf{Datasets.} Considering challenges and real demands in regional-specific image editing, we manipulate a \textbf{R}eal \textbf{I}mage \textbf{C}omplexly \textbf{E}diting Benchmark(RICE-Bench) for better evaluating Context Fidelity, Text Adherence and Editing Seamlessness. In total, it includes around 80 images focusing on real scenes and complex editing scenarios. Besides, following previous methods, we also take evaluation on PIE-Bench~\
+
+\subsection{Experiment results on RICE-bench}
+
+\begin{table*}[h]
+\begin{center} 
+\footnotesize
+\setlength{\tabcolsep}{1.70mm} %
+\caption{\textbf{Automatically computed metrics comparing with representative methods on RICE-Bench.}. RFSolver-Edit and KV-Edit are training-free flow-based methods. The inject denotes the number of denoising steps where attention feature injection is applied. BrushEdit, Powerpaint-Flux and FLUX Fill represent training-based methods. The metrics are Context Preservation(CP) and Text Adherence(TA). TO Score measures the trade-off for editabily and fidelity, which sums up CP and TA across 3 editing tasks. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
+\begin{tabular}{l|cc|cc|cc|c}
+\toprule
+\multirow{2}{*}[0.8ex]{Editing Tasks} & \multicolumn{2}{c|}{Add} & \multicolumn{2}{c|}{Removal} &\multicolumn{2}{c|}{Replace} & Summary\\
+\midrule
+ Metrics & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & $\textup{CP}_{\times 10^2}^{\uparrow}$ & $\textup{TA}_{\times 10^2}^{\uparrow}$ & TO Score\\
+\midrule
+RFSolver-Edit($\textup{inject}=2$)~\cite{wang2024taming} & 71.77 & 22.65 & 42.99 & \textbf{39.05} & 47.44 & 9.22 & 233.1\\
+RFSolver-Edit($\textup{inject}=8$)~\cite{wang2024taming} & \textbf{99.13} & 2.14 & \textbf{79.34} & 2.94 & \textbf{67.89} & 5.03 & 256.5\\
+KV-Edit~\cite{zhu2025kv} & \underline{93.91} & 17.25 & \underline{69.81} & 16.62 & \underline{64.72} & \underline{12.36} & \underline{274.7}\\
+BrushEdit~\cite{li2024brushedit} & 87.26 & 18.98 & 63.43 & 31.29 & 59.11 & 7.40 & 267.5\\
+FLUX Fill~\cite{flux2024} & & & & & & & \\
+Powerpaint-Flux~\cite{zhuang2023task} & 84.63 & \underline{24.34} & 62.31 & 21.40 & 60.75 & 8.92 & 262.4\\
+\midrule
+\textbf{Canny-Rx(Ours)} & 88.72 & \textbf{28.12} & 61.28 & \underline{34.22} & 62.43 & \textbf{16.77} & \textbf{291.5}\\
+\bottomrule
+\end{tabular}
+\label{tab:rice-comparison} 
+\end{center}
+\end{table*}
+
+\begin{table*}[h]
+\begin{center} 
+\setlength{\tabcolsep}{1.65mm} %
+\caption{\textbf{Human study comparing with representative methods on RICE-Bench.}. KV-Edit is training-free flow-based method. BrushEdit and Powerpaint-Flux are training-based methods. General Public means participants have no expertise in AI image generation. Expert denotes participants have at least some basic knowledge. Gen denotes images are generated by different editing methods. GT means samples are ground truth images. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.\textcolor{red}{[will report 95\% CI]}}
+\begin{tabular}{l|cc|cc|cc|cc}
+\toprule
+\multirow{2}{*}[0.8ex]{Group} & \multicolumn{4}{c|}{General Public(96 participants)} & \multicolumn{4}{c}{Expert(41 participants)} \\
+\midrule
+\multirow{2}{*}[0.8ex]{Task id} & \multicolumn{2}{c|}{Task 1} & \multicolumn{2}{c|}{Task 2} &\multicolumn{2}{c|}{Task 1} & \multicolumn{2}{c}{Task 2}\\
+\midrule
+ \begin{tabular}[c]{@{}c@{}}Ratio regarded \\ \arraybackslash as AI(\%)\end{tabular} & $\textup{Gen}^{\downarrow}$ & $\textup{GT}^{\uparrow}$ & $\textup{Ours}^{\downarrow}$ & $\textup{Itself}^{\downarrow}$ & $\textup{Gen}^{\downarrow}$ & $\textup{GT}^{\uparrow}$ & $\textup{Ours}^{\downarrow}$ & $\textup{Itself}^{\downarrow}$\\
+\midrule
+Baseline & 50.00  & 50.00 & 50.00 & 50.00 & 50.00 & 50.00 & 50.00 & 50.00\\
+\midrule
+KV-Edit~\cite{zhu2025kv} & 86.96  & 13.04 & \textbf{37.50} & 62.50 & 89.09 & 10.91 & \textbf{37.69} & 62.31\\
+BrushEdit~\cite{li2024brushedit} & 79.20 & 20.80 & \textbf{30.00} & 70.00 & \underline{82.00} & \underline{18.00} & \textbf{19.29} & 80.71\\
+Powerpaint-Flux~\cite{zhuang2023task} & \underline{76.08} & \underline{23.91} & \textbf{38.08} & 61.92 & 88.00 & 12.00 & \textbf{33.85} & 66.15\\
+\midrule
+\textbf{Canny-Rx(Ours)} & \textbf{49.20} & \textbf{50.80} & N/A & N/A & \textbf{42.00} & \textbf{58.00} & N/A & N/A\\
+\bottomrule
+\end{tabular}
+\label{tab:rice-human-study} 
+\end{center}
+\end{table*}
+
+Considering challenges and real demands in this area, we manipulate a \textbf{R}eal \textbf{I}mage \textbf{C}omplexly \textbf{E}diting Benchmark(RICE-Bench). The automatically computed metrics of it is in Table~\ref{tab:rice-comparison}.
+
+For human study, the result is shown in Table~\ref{tab:rice-human-study}.
+
+\subsection{Experiment results on PIE-bench}
+
+\begin{table*}[h]
+
+\begin{center} 
+\setlength{\tabcolsep}{1.55mm} %
+\caption{\textbf{Comparison with other methods on PIE-Bench.} VAE$^*$ denotes the inherent reconstruction error through VAE reconstruction only. P2P and MasaCtrl are DDIM-based methods, while RF Inversion, RFSolver-Edit and KV-Edit are flow-based. BrushEdit, FLUX fill and Powerpaint-Flux represent training-based methods. Except result of ours, other results follow \cite{zhu2025kv}. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
+\begin{tabular}{l|cc|ccc|cc}
+\toprule
+\multirow{3}{*}[0.8ex]{Method} & \multicolumn{2}{c|}{Image Quality} & \multicolumn{3}{c|}{Masked Region Preservation} &\multicolumn{2}{c}{Text Align} \\
+\cmidrule(lr){2-8} & $\textup{HPS}_{\times 10^2}^{\uparrow}$ & $\textup{AS}^{\uparrow}$ & $\textup{PSNR}^\uparrow$ & $\textup{LPIPS}_{\times 10^3}^{\downarrow}$ & $\textup{MSE}_{\times 10^4}^{\downarrow}$ & $\textup{CLIP Sim}^{\uparrow}$ & $\textup{IR}_{\times10}^{\uparrow}$\\
+\midrule
+VAE$^*$ & 24.93 & 6.37 & 37.65 & 7.93 & 3.86 & 19.69 & -3.65\\
+\midrule
+P2P~\cite{hertz2022prompt} & 25.40 & 6.27& 17.86 & 208.43 & 219.22 & 22.24 & 0.017 \\
+MasaCtrl~\cite{cao2023masactrl} & 23.46 & 5.91 & 22.20 & 105.74 & 86.15 & 20.83 & -1.66\\
+RF Inv.~\cite{rout2024semantic} & \textbf{27.99} & \textbf{6.74} & 20.20 & 179.73 & 139.85 & 21.71 & 4.34\\
+RFSolver-Edit~\cite{wang2024taming} & \underline{27.60} & \underline{6.56}& 24.44& 113.20& 56.26& 22.08& 5.18\\
+KV-Edit~\cite{zhu2025kv} & 27.21 & 6.49 & \textbf{35.87}& \textbf{9.92}& \textbf{4.69}& 22.39 & 5.63\\
+BrushEdit~\cite{li2024brushedit} & 25.81 & 6.17 & 32.16 & \underline{17.22} & \underline{8.46} & \underline{22.44} & 3.33\\
+FLUX Fill~\cite{flux2024} & 25.76 & 6.31 & \underline{32.53} & 25.59 & 8.55 & 22.40 & \underline{5.71}\\
+Powerpaint-Flux~\cite{zhuang2023task} & & & & & & & \\
+\midrule
+\textbf{Canny-Rx(Ours)} & 27.19 & 6.38 & 32.18 & 26.38 & 9.79& \textbf{25.36} & \textbf{8.20}\\
+\bottomrule
+\end{tabular}
+\label{tab:pie-comparison} 
+\end{center}
+\end{table*}
+
+The result shows in Table~\ref{tab:pie-comparison}
+
+\subsection{Ablation study and test of robustness}
+
+\begin{table*}[h]
+\begin{center} 
+\footnotesize
+\setlength{\tabcolsep}{1.15mm} %
+\caption{\textbf{Ablation study for Canny-Rx and its variants on RICE-Bench.}. The metrics are Context Preservation(CP) and Text Adherence(TA). TO Score measures the trade-off for editability and fidelity, which sums up CP and TA for each task. CC denotes Canny Control. RX denotes Regional Text Guidance. \textbf{Bold} and \underline{underlined} values represent the best and second-best results respectively.}
+\begin{tabular}{l|c|cc|cc|cc}
+\toprule
+  & Editing Tasks & \multicolumn{4}{|c|}{Add} & \multicolumn{2}{c}{Replace}\\
+\midrule
+ &  & \multicolumn{2}{|c|}{w/o refined mask} & \multicolumn{2}{c|}{refined mask} & \multicolumn{2}{c}{w/o refined mask}\\
+\midrule
+ & & $\textup{CP/TA}_{\times 10^2}^{\uparrow}$ & $\textup{TO Score}^{\uparrow}$ & $\textup{CP/TA}_{\times 10^2}^{\uparrow}$ & $\textup{TO Score}^{\uparrow}$ & $\textup{CP/TA}_{\times 10^2}^{\uparrow}$ & $\textup{TO Score}^{\uparrow}$ \\
+\midrule
+Canny-RX & selective CC+RX & 84.6/\textbf{29.5} & \textbf{114.1} & \underline{88.7}/\textbf{28.1} & \textbf{116.8} & 62.4/16.8 & 79.2 \\
+\midrule
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Variants \\ \arraybackslash of CC\end{tabular}} & w/o CC & 79.5/\underline{25.3} & 104.8 & 79.7/\underline{26.3} & 106.0 &  &  \\
+ & Full CC & \textbf{90.8}/23.1 & \underline{113.9} & \textbf{93.4}/19.7 & \underline{113.1} &  &  \\
+\midrule
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}Variants \\ \arraybackslash of RX\end{tabular}} & local text only & \underline{85.1}/24.8 & 109.9 & \textbf{93.4}/10.2 & 103.6 &  &  \\
+ & global text only & 85.0/24.0 & 109.0 & N/A & N/A & & \\
+\midrule
+Baseline & w/o CC, w/o RX & 81.4/22.0 & 103.4 & N/A & N/A &  &  \\
+\bottomrule
+\end{tabular}
+\label{tab:ablation-study} 
+\end{center}
+\end{table*}
+
+The results for ablation study and robustness of masks are on Table~\ref{tab:ablation-study}
+
+
+\section{Conclusion}
+
+\section{Limitations and future improvements}
+1. Eliminate the needs of input masks: Use VLM to infer the region to apply Canny masking or weakening;
+2. Support different kinds of controls (like pose control in local region, depth control and multiple conditions)? 
+3. Interactive editing?
+4. Extend to more models.
+
+% \section{Submission of papers to NeurIPS 2025}
+
+
+
+
+% Please read the instructions below carefully and follow them faithfully.
+
+
+% \subsection{Style}
+
+
+% Papers to be submitted to NeurIPS 2025 must be prepared according to the
+% instructions presented here. Papers may only be up to {\bf nine} pages long,
+% including figures.
+% % Additional pages \emph{containing only acknowledgments and references} are allowed.
+% Additional pages \emph{containing references, checklist, and the optional technical appendices} do not count as content pages.
+% Papers that exceed the page limit will not be
+% reviewed, or in any other way considered for presentation at the conference.
+
+
+% The margins in 2025 are the same as those in previous years.
+
+
+% Authors are required to use the NeurIPS \LaTeX{} style files obtainable at the
+% NeurIPS website as indicated below. Please make sure you use the current files
+% and not previous versions. Tweaking the style files may be grounds for
+% rejection.
+
+
+% \subsection{Retrieval of style files}
+
+
+% The style files for NeurIPS and other conference information are available on
+% the website at
+% \begin{center}
+%   \url{https://neurips.cc}
+% \end{center}
+% The file \verb+neurips_2025.pdf+ contains these instructions and illustrates the
+% various formatting requirements your NeurIPS paper must satisfy.
+
+
+% The only supported style file for NeurIPS 2025 is \verb+neurips_2025.sty+,
+% rewritten for \LaTeXe{}.  \textbf{Previous style files for \LaTeX{} 2.09,
+%   Microsoft Word, and RTF are no longer supported!}
+
+
+% The \LaTeX{} style file contains three optional arguments: \verb+final+, which
+% creates a camera-ready copy, \verb+preprint+, which creates a preprint for
+% submission to, e.g., aRxiv, and \verb+nonatbib+, which will not load the
+% \verb+natbib+ package for you in case of package clash.
+
+
+% \paragraph{Preprint option}
+% If you wish to post a preprint of your work online, e.g., on aRxiv, using the
+% NeurIPS style, please use the \verb+preprint+ option. This will create a
+% nonanonymized version of your work with the text ``Preprint. Work in progress.''
+% in the footer. This version may be distributed as you see fit, as long as you do not say which conference it was submitted to. Please \textbf{do
+%   not} use the \verb+final+ option, which should \textbf{only} be used for
+% papers accepted to NeurIPS.
+
+
+% At submission time, please omit the \verb+final+ and \verb+preprint+
+% options. This will anonymize your submission and add line numbers to aid
+% review. Please do \emph{not} refer to these line numbers in your paper as they
+% will be removed during generation of camera-ready copies.
+
+
+% The file \verb+neurips_2025.tex+ may be used as a ``shell'' for writing your
+% paper. All you have to do is replace the author, title, abstract, and text of
+% the paper with your own.
+
+
+% The formatting instructions contained in these style files are summarized in
+% Sections \ref{gen_inst}, \ref{headings}, and \ref{others} below.
+
+
+% \section{General formatting instructions}
+% \label{gen_inst}
+
+
+% The text must be confined within a rectangle 5.5~inches (33~picas) wide and
+% 9~inches (54~picas) long. The left margin is 1.5~inch (9~picas).  Use 10~point
+% type with a vertical spacing (leading) of 11~points.  Times New Roman is the
+% preferred typeface throughout, and will be selected for you by default.
+% Paragraphs are separated by \nicefrac{1}{2}~line space (5.5 points), with no
+% indentation.
+
+
+% The paper title should be 17~point, initial caps/lower case, bold, centered
+% between two horizontal rules. The top rule should be 4~points thick and the
+% bottom rule should be 1~point thick. Allow \nicefrac{1}{4}~inch space above and
+% below the title to rules. All pages should start at 1~inch (6~picas) from the
+% top of the page.
+
+
+% For the final version, authors' names are set in boldface, and each name is
+% centered above the corresponding address. The lead author's name is to be listed
+% first (left-most), and the co-authors' names (if different address) are set to
+% follow. If there is only one co-author, list both author and co-author side by
+% side.
+
+
+% Please pay special attention to the instructions in Section \ref{others}
+% regarding figures, tables, acknowledgments, and references.
+
+
+% \section{Headings: first level}
+% \label{headings}
+
+
+% All headings should be lower case (except for first word and proper nouns),
+% flush left, and bold.
+
+
+% First-level headings should be in 12-point type.
+
+
+% \subsection{Headings: second level}
+
+
+% Second-level headings should be in 10-point type.
+
+
+% \subsubsection{Headings: third level}
+
+
+% Third-level headings should be in 10-point type.
+
+
+% \paragraph{Paragraphs}
+
+
+% There is also a \verb+\paragraph+ command available, which sets the heading in
+% bold, flush left, and inline with the text, with the heading followed by 1\,em
+% of space.
+
+
+% \section{Citations, figures, tables, references}
+% \label{others}
+
+
+% These instructions apply to everyone.
+
+
+% \subsection{Citations within the text}
+
+
+% The \verb+natbib+ package will be loaded for you by default.  Citations may be
+% author/year or numeric, as long as you maintain internal consistency.  As to the
+% format of the references themselves, any style is acceptable as long as it is
+% used consistently.
+
+
+% The documentation for \verb+natbib+ may be found at
+% \begin{center}
+%   \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
+% \end{center}
+% Of note is the command \verb+\citet+, which produces citations appropriate for
+% use in inline text.  For example,
+% \begin{verbatim}
+%    \citet{hasselmo} investigated\dots
+% \end{verbatim}
+% produces
+% \begin{quote}
+%   Hasselmo, et al.\ (1995) investigated\dots
+% \end{quote}
+
+
+% If you wish to load the \verb+natbib+ package with options, you may add the
+% following before loading the \verb+neurips_2025+ package:
+% \begin{verbatim}
+%    \PassOptionsToPackage{options}{natbib}
+% \end{verbatim}
+
+
+% If \verb+natbib+ clashes with another package you load, you can add the optional
+% argument \verb+nonatbib+ when loading the style file:
+% \begin{verbatim}
+%    \usepackage[nonatbib]{neurips_2025}
+% \end{verbatim}
+
+
+% As submission is double blind, refer to your own published work in the third
+% person. That is, use ``In the previous work of Jones et al.\ [4],'' not ``In our
+% previous work [4].'' If you cite your other papers that are not widely available
+% (e.g., a journal paper under review), use anonymous author names in the
+% citation, e.g., an author of the form ``A.\ Anonymous'' and include a copy of the anonymized paper in the supplementary material.
+
+
+% \subsection{Footnotes}
+
+
+% Footnotes should be used sparingly.  If you do require a footnote, indicate
+% footnotes with a number\footnote{Sample of the first footnote.} in the
+% text. Place the footnotes at the bottom of the page on which they appear.
+% Precede the footnote with a horizontal rule of 2~inches (12~picas).
+
+
+% Note that footnotes are properly typeset \emph{after} punctuation
+% marks.\footnote{As in this example.}
+
+
+% \subsection{Figures}
+
+
+% \begin{figure}
+%   \centering
+%   \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
+%   \caption{Sample figure caption.}
+% \end{figure}
+
+
+% All artwork must be neat, clean, and legible. Lines should be dark enough for
+% purposes of reproduction. The figure number and caption always appear after the
+% figure. Place one line space before the figure caption and one line space after
+% the figure. The figure caption should be lower case (except for first word and
+% proper nouns); figures are numbered consecutively.
+
+
+% You may use color figures.  However, it is best for the figure captions and the
+% paper body to be legible if the paper is printed in either black/white or in
+% color.
+
+
+% \subsection{Tables}
+
+
+% All tables must be centered, neat, clean and legible.  The table number and
+% title always appear before the table.  See Table~\ref{sample-table}.
+
+
+% Place one line space before the table title, one line space after the
+% table title, and one line space after the table. The table title must
+% be lower case (except for first word and proper nouns); tables are
+% numbered consecutively.
+
+
+% Note that publication-quality tables \emph{do not contain vertical rules.} We
+% strongly suggest the use of the \verb+booktabs+ package, which allows for
+% typesetting high-quality, professional tables:
+% \begin{center}
+%   \url{https://www.ctan.org/pkg/booktabs}
+% \end{center}
+% This package was used to typeset Table~\ref{sample-table}.
+
+
+% \begin{table}
+%   \caption{Sample table title}
+%   \label{sample-table}
+%   \centering
+%   \begin{tabular}{lll}
+%     \toprule
+%     \multicolumn{2}{c}{Part}                   \\
+%     \cmidrule(r){1-2}
+%     Name     & Description     & Size ($\mu$m) \\
+%     \midrule
+%     Dendrite & Input terminal  & $\sim$100     \\
+%     Axon     & Output terminal & $\sim$10      \\
+%     Soma     & Cell body       & up to $10^6$  \\
+%     \bottomrule
+%   \end{tabular}
+% \end{table}
+
+% \subsection{Math}
+% Note that display math in bare TeX commands will not create correct line numbers for submission. Please use LaTeX (or AMSTeX) commands for unnumbered display math. (You really shouldn't be using \$\$ anyway; see \url{https://tex.stackexchange.com/questions/503/why-is-preferable-to} and \url{https://tex.stackexchange.com/questions/40492/what-are-the-differences-between-align-equation-and-displaymath} for more information.)
+
+% \subsection{Final instructions}
+
+% Do not change any aspects of the formatting parameters in the style files.  In
+% particular, do not modify the width or length of the rectangle the text should
+% fit into, and do not change font sizes (except perhaps in the
+% \textbf{References} section; see below). Please note that pages should be
+% numbered.
+
+
+% \section{Preparing PDF files}
+
+
+% Please prepare submission files with paper size ``US Letter,'' and not, for
+% example, ``A4.''
+
+
+% Fonts were the main cause of problems in the past years. Your PDF file must only
+% contain Type 1 or Embedded TrueType fonts. Here are a few instructions to
+% achieve this.
+
+
+% \begin{itemize}
+
+
+% \item You should directly generate PDF files using \verb+pdflatex+.
+
+
+% \item You can check which fonts a PDF files uses.  In Acrobat Reader, select the
+%   menu Files$>$Document Properties$>$Fonts and select Show All Fonts. You can
+%   also use the program \verb+pdffonts+ which comes with \verb+xpdf+ and is
+%   available out-of-the-box on most Linux machines.
+
+
+% \item \verb+xfig+ "patterned" shapes are implemented with bitmap fonts.  Use
+%   "solid" shapes instead.
+
+
+% \item The \verb+\bbold+ package almost always uses bitmap fonts.  You should use
+%   the equivalent AMS Fonts:
+% \begin{verbatim}
+%    \usepackage{amsfonts}
+% \end{verbatim}
+% followed by, e.g., \verb+\mathbb{R}+, \verb+\mathbb{N}+, or \verb+\mathbb{C}+
+% for $\mathbb{R}$, $\mathbb{N}$ or $\mathbb{C}$.  You can also use the following
+% workaround for reals, natural and complex:
+% \begin{verbatim}
+%    \newcommand{\RR}{I\!\!R} %real numbers
+%    \newcommand{\Nat}{I\!\!N} %natural numbers
+%    \newcommand{\CC}{I\!\!\!\!C} %complex numbers
+% \end{verbatim}
+% Note that \verb+amsfonts+ is automatically loaded by the \verb+amssymb+ package.
+
+
+% \end{itemize}
+
+
+% If your file contains type 3 fonts or non embedded TrueType fonts, we will ask
+% you to fix it.
+
+
+% \subsection{Margins in \LaTeX{}}
+
+
+% Most of the margin problems come from figures positioned by hand using
+% \verb+\special+ or other commands. We suggest using the command
+% \verb+\includegraphics+ from the \verb+graphicx+ package. Always specify the
+% figure width as a multiple of the line width as in the example below:
+% \begin{verbatim}
+%    \usepackage[pdftex]{graphicx} ...
+%    \includegraphics[width=0.8\linewidth]{myfile.pdf}
+% \end{verbatim}
+% See Section 4.4 in the graphics bundle documentation
+% (\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
+
+
+% A number of width problems arise when \LaTeX{} cannot properly hyphenate a
+% line. Please give LaTeX hyphenation hints using the \verb+\-+ command when
+% necessary.
+
+% \begin{ack}
+% Use unnumbered first level headings for the acknowledgments. All acknowledgments
+% go at the end of the paper before the list of references. Moreover, you are required to declare
+% funding (financial activities supporting the submitted work) and competing interests (related financial activities outside the submitted work).
+% More information about this disclosure can be found at: \url{https://neurips.cc/Conferences/2025/PaperInformation/FundingDisclosure}.
+
+
+% Do {\bf not} include this section in the anonymized submission, only in the final paper. You can use the \texttt{ack} environment provided in the style file to automatically hide this section in the anonymized submission.
+% \end{ack}
+
+
+
+
+
+\newpage
+\bibliography{main}
+\bibliographystyle{plainnat}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \appendix
+
+% \section{Technical Appendices and Supplementary Material}
+% Technical appendices with additional results, figures, graphs and proofs may be submitted with the paper submission before the full submission deadline (see above), or as a separate PDF in the ZIP file below before the supplementary material deadline. There is no page limit for the technical appendices.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+\section*{NeurIPS Paper Checklist}
+
+%%% BEGIN INSTRUCTIONS %%%
+The checklist is designed to encourage best practices for responsible machine learning research, addressing issues of reproducibility, transparency, research ethics, and societal impact. Do not remove the checklist: {\bf The papers not including the checklist will be desk rejected.} The checklist should follow the references and follow the (optional) supplemental material.  The checklist does NOT count towards the page
+limit. 
+
+Please read the checklist guidelines carefully for information on how to answer these questions. For each question in the checklist:
+\begin{itemize}
+    \item You should answer \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item \answerNA{} means either that the question is Not Applicable for that particular paper or the relevant information is Not Available.
+    \item Please provide a short (1–2 sentence) justification right after your answer (even for NA). 
+   % \item {\bf The papers not including the checklist will be desk rejected.}
+\end{itemize}
+
+{\bf The checklist answers are an integral part of your paper submission.} They are visible to the reviewers, area chairs, senior area chairs, and ethics reviewers. You will be asked to also include it (after eventual revisions) with the final version of your paper, and its final version will be published with the paper.
+
+The reviewers of your paper will be asked to use the checklist as one of the factors in their evaluation. While "\answerYes{}" is generally preferable to "\answerNo{}", it is perfectly acceptable to answer "\answerNo{}" provided a proper justification is given (e.g., "error bars are not reported because it would be too computationally expensive" or "we were unable to find the license for the dataset we used"). In general, answering "\answerNo{}" or "\answerNA{}" is not grounds for rejection. While the questions are phrased in a binary way, we acknowledge that the true answer is often more nuanced, so please just use your best judgment and write a justification to elaborate. All supporting evidence can appear either in the main paper or the supplemental material, provided in appendix. If you answer \answerYes{} to a question, in the justification please point to the section(s) where related material for the question can be found.
+
+IMPORTANT, please:
+\begin{itemize}
+    \item {\bf Delete this instruction block, but keep the section heading ``NeurIPS Paper Checklist"},
+    \item  {\bf Keep the checklist subsection headings, questions/answers and guidelines below.}
+    \item {\bf Do not modify the questions and only use the provided macros for your answers}.
+\end{itemize} 
+ 
+
+%%% END INSTRUCTIONS %%%
+
+
+\begin{enumerate}
+
+\item {\bf Claims}
+    \item[] Question: Do the main claims made in the abstract and introduction accurately reflect the paper's contributions and scope?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the abstract and introduction do not include the claims made in the paper.
+        \item The abstract and/or introduction should clearly state the claims made, including the contributions made in the paper and important assumptions and limitations. A No or NA answer to this question will not be perceived well by the reviewers. 
+        \item The claims made should match theoretical and experimental results, and reflect how much the results can be expected to generalize to other settings. 
+        \item It is fine to include aspirational goals as motivation as long as it is clear that these goals are not attained by the paper. 
+    \end{itemize}
+
+\item {\bf Limitations}
+    \item[] Question: Does the paper discuss the limitations of the work performed by the authors?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper has no limitation while the answer No means that the paper has limitations, but those are not discussed in the paper. 
+        \item The authors are encouraged to create a separate "Limitations" section in their paper.
+        \item The paper should point out any strong assumptions and how robust the results are to violations of these assumptions (e.g., independence assumptions, noiseless settings, model well-specification, asymptotic approximations only holding locally). The authors should reflect on how these assumptions might be violated in practice and what the implications would be.
+        \item The authors should reflect on the scope of the claims made, e.g., if the approach was only tested on a few datasets or with a few runs. In general, empirical results often depend on implicit assumptions, which should be articulated.
+        \item The authors should reflect on the factors that influence the performance of the approach. For example, a facial recognition algorithm may perform poorly when image resolution is low or images are taken in low lighting. Or a speech-to-text system might not be used reliably to provide closed captions for online lectures because it fails to handle technical jargon.
+        \item The authors should discuss the computational efficiency of the proposed algorithms and how they scale with dataset size.
+        \item If applicable, the authors should discuss possible limitations of their approach to address problems of privacy and fairness.
+        \item While the authors might fear that complete honesty about limitations might be used by reviewers as grounds for rejection, a worse outcome might be that reviewers discover limitations that aren't acknowledged in the paper. The authors should use their best judgment and recognize that individual actions in favor of transparency play an important role in developing norms that preserve the integrity of the community. Reviewers will be specifically instructed to not penalize honesty concerning limitations.
+    \end{itemize}
+
+\item {\bf Theory assumptions and proofs}
+    \item[] Question: For each theoretical result, does the paper provide the full set of assumptions and a complete (and correct) proof?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include theoretical results. 
+        \item All the theorems, formulas, and proofs in the paper should be numbered and cross-referenced.
+        \item All assumptions should be clearly stated or referenced in the statement of any theorems.
+        \item The proofs can either appear in the main paper or the supplemental material, but if they appear in the supplemental material, the authors are encouraged to provide a short proof sketch to provide intuition. 
+        \item Inversely, any informal proof provided in the core of the paper should be complemented by formal proofs provided in appendix or supplemental material.
+        \item Theorems and Lemmas that the proof relies upon should be properly referenced. 
+    \end{itemize}
+
+    \item {\bf Experimental result reproducibility}
+    \item[] Question: Does the paper fully disclose all the information needed to reproduce the main experimental results of the paper to the extent that it affects the main claims and/or conclusions of the paper (regardless of whether the code and data are provided or not)?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item If the paper includes experiments, a No answer to this question will not be perceived well by the reviewers: Making the paper reproducible is important, regardless of whether the code and data are provided or not.
+        \item If the contribution is a dataset and/or model, the authors should describe the steps taken to make their results reproducible or verifiable. 
+        \item Depending on the contribution, reproducibility can be accomplished in various ways. For example, if the contribution is a novel architecture, describing the architecture fully might suffice, or if the contribution is a specific model and empirical evaluation, it may be necessary to either make it possible for others to replicate the model with the same dataset, or provide access to the model. In general. releasing code and data is often one good way to accomplish this, but reproducibility can also be provided via detailed instructions for how to replicate the results, access to a hosted model (e.g., in the case of a large language model), releasing of a model checkpoint, or other means that are appropriate to the research performed.
+        \item While NeurIPS does not require releasing code, the conference does require all submissions to provide some reasonable avenue for reproducibility, which may depend on the nature of the contribution. For example
+        \begin{enumerate}
+            \item If the contribution is primarily a new algorithm, the paper should make it clear how to reproduce that algorithm.
+            \item If the contribution is primarily a new model architecture, the paper should describe the architecture clearly and fully.
+            \item If the contribution is a new model (e.g., a large language model), then there should either be a way to access this model for reproducing the results or a way to reproduce the model (e.g., with an open-source dataset or instructions for how to construct the dataset).
+            \item We recognize that reproducibility may be tricky in some cases, in which case authors are welcome to describe the particular way they provide for reproducibility. In the case of closed-source models, it may be that access to the model is limited in some way (e.g., to registered users), but it should be possible for other researchers to have some path to reproducing or verifying the results.
+        \end{enumerate}
+    \end{itemize}
+
+
+\item {\bf Open access to data and code}
+    \item[] Question: Does the paper provide open access to the data and code, with sufficient instructions to faithfully reproduce the main experimental results, as described in supplemental material?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that paper does not include experiments requiring code.
+        \item Please see the NeurIPS code and data submission guidelines (\url{https://nips.cc/public/guides/CodeSubmissionPolicy}) for more details.
+        \item While we encourage the release of code and data, we understand that this might not be possible, so “No” is an acceptable answer. Papers cannot be rejected simply for not including code, unless this is central to the contribution (e.g., for a new open-source benchmark).
+        \item The instructions should contain the exact command and environment needed to run to reproduce the results. See the NeurIPS code and data submission guidelines (\url{https://nips.cc/public/guides/CodeSubmissionPolicy}) for more details.
+        \item The authors should provide instructions on data access and preparation, including how to access the raw data, preprocessed data, intermediate data, and generated data, etc.
+        \item The authors should provide scripts to reproduce all experimental results for the new proposed method and baselines. If only a subset of experiments are reproducible, they should state which ones are omitted from the script and why.
+        \item At submission time, to preserve anonymity, the authors should release anonymized versions (if applicable).
+        \item Providing as much information as possible in supplemental material (appended to the paper) is recommended, but including URLs to data and code is permitted.
+    \end{itemize}
+
+
+\item {\bf Experimental setting/details}
+    \item[] Question: Does the paper specify all the training and test details (e.g., data splits, hyperparameters, how they were chosen, type of optimizer, etc.) necessary to understand the results?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The experimental setting should be presented in the core of the paper to a level of detail that is necessary to appreciate the results and make sense of them.
+        \item The full details can be provided either with the code, in appendix, or as supplemental material.
+    \end{itemize}
+
+\item {\bf Experiment statistical significance}
+    \item[] Question: Does the paper report error bars suitably and correctly defined or other appropriate information about the statistical significance of the experiments?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The authors should answer "Yes" if the results are accompanied by error bars, confidence intervals, or statistical significance tests, at least for the experiments that support the main claims of the paper.
+        \item The factors of variability that the error bars are capturing should be clearly stated (for example, train/test split, initialization, random drawing of some parameter, or overall run with given experimental conditions).
+        \item The method for calculating the error bars should be explained (closed form formula, call to a library function, bootstrap, etc.)
+        \item The assumptions made should be given (e.g., Normally distributed errors).
+        \item It should be clear whether the error bar is the standard deviation or the standard error of the mean.
+        \item It is OK to report 1-sigma error bars, but one should state it. The authors should preferably report a 2-sigma error bar than state that they have a 96\% CI, if the hypothesis of Normality of errors is not verified.
+        \item For asymmetric distributions, the authors should be careful not to show in tables or figures symmetric error bars that would yield results that are out of range (e.g. negative error rates).
+        \item If error bars are reported in tables or plots, The authors should explain in the text how they were calculated and reference the corresponding figures or tables in the text.
+    \end{itemize}
+
+\item {\bf Experiments compute resources}
+    \item[] Question: For each experiment, does the paper provide sufficient information on the computer resources (type of compute workers, memory, time of execution) needed to reproduce the experiments?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not include experiments.
+        \item The paper should indicate the type of compute workers CPU or GPU, internal cluster, or cloud provider, including relevant memory and storage.
+        \item The paper should provide the amount of compute required for each of the individual experimental runs as well as estimate the total compute. 
+        \item The paper should disclose whether the full research project required more compute than the experiments reported in the paper (e.g., preliminary or failed experiments that didn't make it into the paper). 
+    \end{itemize}
+    
+\item {\bf Code of ethics}
+    \item[] Question: Does the research conducted in the paper conform, in every respect, with the NeurIPS Code of Ethics \url{https://neurips.cc/public/EthicsGuidelines}?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the authors have not reviewed the NeurIPS Code of Ethics.
+        \item If the authors answer No, they should explain the special circumstances that require a deviation from the Code of Ethics.
+        \item The authors should make sure to preserve anonymity (e.g., if there is a special consideration due to laws or regulations in their jurisdiction).
+    \end{itemize}
+
+
+\item {\bf Broader impacts}
+    \item[] Question: Does the paper discuss both potential positive societal impacts and negative societal impacts of the work performed?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that there is no societal impact of the work performed.
+        \item If the authors answer NA or No, they should explain why their work has no societal impact or why the paper does not address societal impact.
+        \item Examples of negative societal impacts include potential malicious or unintended uses (e.g., disinformation, generating fake profiles, surveillance), fairness considerations (e.g., deployment of technologies that could make decisions that unfairly impact specific groups), privacy considerations, and security considerations.
+        \item The conference expects that many papers will be foundational research and not tied to particular applications, let alone deployments. However, if there is a direct path to any negative applications, the authors should point it out. For example, it is legitimate to point out that an improvement in the quality of generative models could be used to generate deepfakes for disinformation. On the other hand, it is not needed to point out that a generic algorithm for optimizing neural networks could enable people to train models that generate Deepfakes faster.
+        \item The authors should consider possible harms that could arise when the technology is being used as intended and functioning correctly, harms that could arise when the technology is being used as intended but gives incorrect results, and harms following from (intentional or unintentional) misuse of the technology.
+        \item If there are negative societal impacts, the authors could also discuss possible mitigation strategies (e.g., gated release of models, providing defenses in addition to attacks, mechanisms for monitoring misuse, mechanisms to monitor how a system learns from feedback over time, improving the efficiency and accessibility of ML).
+    \end{itemize}
+    
+\item {\bf Safeguards}
+    \item[] Question: Does the paper describe safeguards that have been put in place for responsible release of data or models that have a high risk for misuse (e.g., pretrained language models, image generators, or scraped datasets)?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper poses no such risks.
+        \item Released models that have a high risk for misuse or dual-use should be released with necessary safeguards to allow for controlled use of the model, for example by requiring that users adhere to usage guidelines or restrictions to access the model or implementing safety filters. 
+        \item Datasets that have been scraped from the Internet could pose safety risks. The authors should describe how they avoided releasing unsafe images.
+        \item We recognize that providing effective safeguards is challenging, and many papers do not require this, but we encourage authors to take this into account and make a best faith effort.
+    \end{itemize}
+
+\item {\bf Licenses for existing assets}
+    \item[] Question: Are the creators or original owners of assets (e.g., code, data, models), used in the paper, properly credited and are the license and terms of use explicitly mentioned and properly respected?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not use existing assets.
+        \item The authors should cite the original paper that produced the code package or dataset.
+        \item The authors should state which version of the asset is used and, if possible, include a URL.
+        \item The name of the license (e.g., CC-BY 4.0) should be included for each asset.
+        \item For scraped data from a particular source (e.g., website), the copyright and terms of service of that source should be provided.
+        \item If assets are released, the license, copyright information, and terms of use in the package should be provided. For popular datasets, \url{paperswithcode.com/datasets} has curated licenses for some datasets. Their licensing guide can help determine the license of a dataset.
+        \item For existing datasets that are re-packaged, both the original license and the license of the derived asset (if it has changed) should be provided.
+        \item If this information is not available online, the authors are encouraged to reach out to the asset's creators.
+    \end{itemize}
+
+\item {\bf New assets}
+    \item[] Question: Are new assets introduced in the paper well documented and is the documentation provided alongside the assets?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not release new assets.
+        \item Researchers should communicate the details of the dataset/code/model as part of their submissions via structured templates. This includes details about training, license, limitations, etc. 
+        \item The paper should discuss whether and how consent was obtained from people whose asset is used.
+        \item At submission time, remember to anonymize your assets (if applicable). You can either create an anonymized URL or include an anonymized zip file.
+    \end{itemize}
+
+\item {\bf Crowdsourcing and research with human subjects}
+    \item[] Question: For crowdsourcing experiments and research with human subjects, does the paper include the full text of instructions given to participants and screenshots, if applicable, as well as details about compensation (if any)? 
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not involve crowdsourcing nor research with human subjects.
+        \item Including this information in the supplemental material is fine, but if the main contribution of the paper involves human subjects, then as much detail as possible should be included in the main paper. 
+        \item According to the NeurIPS Code of Ethics, workers involved in data collection, curation, or other labor should be paid at least the minimum wage in the country of the data collector. 
+    \end{itemize}
+
+\item {\bf Institutional review board (IRB) approvals or equivalent for research with human subjects}
+    \item[] Question: Does the paper describe potential risks incurred by study participants, whether such risks were disclosed to the subjects, and whether Institutional Review Board (IRB) approvals (or an equivalent approval/review based on the requirements of your country or institution) were obtained?
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the paper does not involve crowdsourcing nor research with human subjects.
+        \item Depending on the country in which research is conducted, IRB approval (or equivalent) may be required for any human subjects research. If you obtained IRB approval, you should clearly state this in the paper. 
+        \item We recognize that the procedures for this may vary significantly between institutions and locations, and we expect authors to adhere to the NeurIPS Code of Ethics and the guidelines for their institution. 
+        \item For initial submissions, do not include any information that would break anonymity (if applicable), such as the institution conducting the review.
+    \end{itemize}
+
+\item {\bf Declaration of LLM usage}
+    \item[] Question: Does the paper describe the usage of LLMs if it is an important, original, or non-standard component of the core methods in this research? Note that if the LLM is used only for writing, editing, or formatting purposes and does not impact the core methodology, scientific rigorousness, or originality of the research, declaration is not required.
+    %this research? 
+    \item[] Answer: \answerTODO{} % Replace by \answerYes{}, \answerNo{}, or \answerNA{}.
+    \item[] Justification: \justificationTODO{}
+    \item[] Guidelines:
+    \begin{itemize}
+        \item The answer NA means that the core method development in this research does not involve LLMs as any important, original, or non-standard components.
+        \item Please refer to our LLM policy (\url{https://neurips.cc/Conferences/2025/LLM}) for what should or should not be described.
+    \end{itemize}
+
+\end{enumerate}
+
+
+\end{document}
