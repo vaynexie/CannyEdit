@@ -440,7 +440,7 @@ Unlike the inversion process, which adds the full Canny ControlNet outputs to th
 
 \end{cyanpar}
 
-$\mathbf{x}^\text{edit}_{t_N}=\mathbf{x}_{t_N}$
+% $\mathbf{x}^\text{edit}_{t_N}=\mathbf{x}_{t_N}$
 
 % The use of $\tilde{h}'_{\text{img}}$ and $\mathbf{x}_t$ is detailed in Sections \ref{sec:cannycontrol} and~\textit{xx}. 
 
@@ -495,9 +495,9 @@ h_{\text{img}} \leftarrow h_{\text{img}} + \beta\cdot (1-M) \odot Conv(\tilde{h}
 The $\tilde{h}^{\prime}_{\text{img}}$ for different denoising blocks across various denoising steps are computed and cached during the inversion process. Thus, the Canny ControlNet can be discarded in the denoising process for efficient consideration.
 
 \begin{cyanpar}
-Besides selective masking on the edited region, we also reduce the control strength on the mask boundary by lowering the $\beta$ value. This allows for layout flexibility on the boundary, enabling smooth transitions between edited and unedited regions.  
+Besides selective masking on the edited region, we also reduce the control strength on the mask boundary by lowering the $\beta$ value according its distance to the center of the mask (details in Appendix A.1). This allows for layout flexibility on the boundary, enabling smooth transitions between edited and unedited regions.  
 
-While the user-provided mask may not be precise, especially in editing where something new is added to the image, we apply mask refinement via segmentation models \citep{kirillov2023segment,ravi2024sam,medeiros2024langsegmentanything} to obtain the mask of the added object and refine the generation based on this mask (details are in Appendix A.1). This approach helps reduce unnecessary changes to the image context caused by the large mask. As an optional operation, when the $\{\mathbf{x}_{t_{1}},...,\mathbf{x}_{t_{N}}\}$ is cached, cyclical blending can be applied to 
+While the user-provided mask may not be precise, especially in editing where something new is added to the image, we apply mask refinement via segmentation models \citep{kirillov2023segment,ravi2024sam,medeiros2024langsegmentanything} to obtain the mask of the added object and refine the generation based on this mask (details are in Appendix A.2). This approach helps reduce unnecessary changes to the image context caused by the large mask. As an additional optional operation to supplement the background context information provided by $\tilde{h}^{\prime}_{\text{img}}$, when the $\{\mathbf{x}_{t_{1}},...,\mathbf{x}_{t_{N}}\}$ is cached, cyclical blending can be applied to the unedited region:  $\mathbf{x}^\text{edit}_{t_\text{blend}}\leftarrow \alpha\cdot\mathbf{x}^\text{edit}_{t_\text{blend}}+(1-\alpha)\cdot\mathbf{x}_{t_\text{blend}}$ where $t_\text{blend}$ is sampled at a pre-defined frequency.
 
 
 
@@ -545,7 +545,7 @@ For the attention among image tokens (I2I), in default we allow attention only w
 
 
 
-In default the $\mathcal{M}_{I2I}$ is designed to function as a block-diagonal attention mask when all regions are considered editable. However, in practical editing tasks, this design can be adjusted. For instance, in the case of adding new content where one of the regions is the background region (e.g., $I_1=I_{bg}$, $I_2=I_{edit}$), and we aim to preserve its context, the local prompt for the background region could be taken as the source prompt, $T_1=P_\text{source}$. In this scenario, the $\mathcal{M}_{I2I}$ can be modified as follows:
+In default the $\mathcal{M}_{I2I}$ is designed to function as a block-diagonal attention mask when all regions are considered editable. In practical editing tasks, this design can be adjusted based on the nature of different regions. For instance, in the case of adding new content where one of the regions is the background region (e.g., $I_1=I_{bg}$, $I_2=I_{edit}$), and we aim to preserve its context, the local prompt for the background region could be taken as the source prompt, $T_1=P_\text{source}$. In this scenario, the $\mathcal{M}_{I2I}$ can be modified as follows:
 \begin{equation*}
     \mathcal{M}_{I2I} = diag(\mathbf{1}_{|I_\text{bg}|^2}, \mathbf{1}_{|I_\text{edit}|^2})+ \begin{bmatrix}
         \mathbf{0}_{|I_\text{bg}|\times|I_\text{bg}|} &  \mathbf{0}_{|I_\text{bg}|\times|I_\text{edit}|}\\
