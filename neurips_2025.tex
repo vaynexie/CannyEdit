@@ -425,7 +425,7 @@ back to its latent representations. We denote the sample at each timestep obtain
 %Unlike the inversion process that adds the full Canny ControlNet's outputs to the FLUX model, we propose selective Canny control via a user-provided mask in the denoising generation process of the edited region. This approach helps provide structural guidance for the unedited region while allowing editability in the desired area (detailed in Section \ref{sec:cannycontrol}). With the structural relaxation through selective Canny control on the desired edit region, the text signal becomes crucial for directing the edits. We introduce a dual-prompt strategy that employs local prompts and a global target prompt to maintain both text-aligned and harmonious editing results, which will be further explained in Section \ref{sec:dualprompt}.
 
 
-Since our method leverages Canny ControlNet, we integrate it into the inversion process. Specifically, we cache the source image's Canny ControlNet outputs, $\tilde{h}^{\prime}_{\text{img}}$, at each block and timestep throughout denoising\footnote{Block index and timestep notation are omitted for simplicity.}. The inverted noise, $\mathbf{x}_{t_N}$, then serves as the initialization for generating the edited image.
+Since our method leverages Canny ControlNet, we integrate it into the inversion process. Specifically, we cache the source image's Canny ControlNet outputs, $\tilde{h}^{\prime}_{\text{img}}$, at each block and timestep throughout denoising\footnote{Block index and timestep notation are omitted for simplicity.}. The inverted noise, $\mathbf{x}_{t_N}$, then serves as the initialization for generating the edited image. The immediate inverted noise latent $\mathbf{x}_t$ at each timestep $t$ can also be optionally cached for preserving the background context.  
 
 
 Unlike the inversion process, which adds the full Canny ControlNet outputs to the FLUX model, during the denoising for generating the edited image, we propose selective Canny control: given a user-provided mask indicating the edit region, the cached Canny ControlNet outputs in the unedited region are added into the FLUX model, while those in the edited region are masked out (detailed in Section \ref{sec:cannycontrol}). With the structural relaxation in the edit region, the text signal becomes crucial for directing the edits. We introduce a dual-prompt strategy that uses local prompts and a global target prompt to maintain text alignment and harmonious editing results, further explained in Section \ref{sec:dualprompt}.
@@ -440,6 +440,7 @@ Unlike the inversion process, which adds the full Canny ControlNet outputs to th
 
 \end{cyanpar}
 
+$\mathbf{x}^\text{edit}_{t_N}=\mathbf{x}_{t_N}$
 
 % The use of $\tilde{h}'_{\text{img}}$ and $\mathbf{x}_t$ is detailed in Sections \ref{sec:cannycontrol} and~\textit{xx}. 
 
@@ -449,7 +450,7 @@ Unlike the inversion process, which adds the full Canny ControlNet outputs to th
     \centering
     \includegraphics[width=0.97\linewidth]{figures/framework3.pdf}
     \vspace{-1mm}
-    \caption{\textcolor{cyan}{The inversion-denoising process of CannyEdit consists of two processes. 1) The inversion process starts with the source image, the source prompt $P_\text{source}$, and the Canny edge map of the source image. With FireFlow \citep{deng2024fireflow}, we transform source image to the inverted noise $\mathbf{x}_{t_N}$, which serves as the starting point of the denoising. We also cache the  Canny ControlNet's outputs $\tilde{h}^{\prime}_{\text{img}}$ for the use of context preservation later. 2) The denoising process starts with the final inverted noise from process 1). The additional inputs include the mask for selective Canny control, and local prompts $P_\text{local}$ as well as a global target prompt $P_\text{target}$ for providing multi-level text guidance to the editing.}}     %Using model prediction, we transform source image to the inverted noise $\mathbf{x}_{t_N}$. 
+    \caption{\textcolor{cyan}{The inversion-denoising process of CannyEdit consists of two processes. 1) The inversion process starts with the source image, the source prompt $P_\text{source}$, and the Canny edge map of the source image. With FireFlow \citep{deng2024fireflow}, we transform source image to the inverted noise $\mathbf{x}_{t_N}$, which serves as the starting point of the denoising for the edited image $\mathbf{x}^\text{edit}_{t_N}=\mathbf{x}_{t_N}$. We also cache the  Canny ControlNet's outputs $\tilde{h}^{\prime}_{\text{img}}$ for the use of context preservation later. 2) The denoising process starts with the final inverted noise from process 1). The additional inputs include the mask for selective Canny control, and local prompts $P_\text{local}$ as well as a global target prompt $P_\text{target}$ for providing multi-level text guidance to the editing.}}     %Using model prediction, we transform source image to the inverted noise $\mathbf{x}_{t_N}$. 
    % \caption{The framework of CannyEdit in \textbf{objection insertion task} consists of two process. 1) The inversion process starts with source image (the background), the source prompt $P_\text{source}$, and the Canny edge map of the source image. Using model prediction, we transform source image to the inverted noise. 2) The denoising process starts with the inverted noise from process 1), the Canny edge map of the source image, and additional inputs. The additional inputs include the mask for selective Canny control, and the $P_\text{source}$, $P_\text{target}$, and $P_\text{local}$ for regional text guidance. With denoising process, we transform the inverted noise to the target image.}
     \label{fig:framework}
 \end{figure}
@@ -494,9 +495,9 @@ h_{\text{img}} \leftarrow h_{\text{img}} + \beta\cdot (1-M) \odot Conv(\tilde{h}
 The $\tilde{h}^{\prime}_{\text{img}}$ for different denoising blocks across various denoising steps are computed and cached during the inversion process. Thus, the Canny ControlNet can be discarded in the denoising process for efficient consideration.
 
 \begin{cyanpar}
-Besides selective masking on the edited region, we also reduce the control strength on the mask boundary by lowering the $\beta$ value. This allows for layout flexibility on the boundary, enabling smooth transitions between edited and unedited regions. 
+Besides selective masking on the edited region, we also reduce the control strength on the mask boundary by lowering the $\beta$ value. This allows for layout flexibility on the boundary, enabling smooth transitions between edited and unedited regions.  
 
-While the user-provided mask may not be precise, especially in editing where something new is added to the image, we apply mask refinement via segmentation models \citep{kirillov2023segment,ravi2024sam,medeiros2024langsegmentanything} to obtain the mask of the added object and refine the generation based on this mask (details are in Appendix A). This approach helps reduce unnecessary changes to the image context caused by the large mask.
+While the user-provided mask may not be precise, especially in editing where something new is added to the image, we apply mask refinement via segmentation models \citep{kirillov2023segment,ravi2024sam,medeiros2024langsegmentanything} to obtain the mask of the added object and refine the generation based on this mask (details are in Appendix A.1). This approach helps reduce unnecessary changes to the image context caused by the large mask. As an optional operation, when the $\{\mathbf{x}_{t_{1}},...,\mathbf{x}_{t_{N}}\}$ is cached, cyclical blending can be applied to 
 
 
 
@@ -563,7 +564,7 @@ where the addition of $\mathbf{1}_{|I_\text{edit}|\times|I_\text{bg}|}$ allow th
 
 
 The local prompts used in different editing tasks differ. In the adding and replacement task, the local prompts represent the objects to add or to replace the existing objects. In the removal task, we use ``empty background'' as the local prompt in default. To more effectively eliminate existing objects, we apply class-free guidance \citep{ho2022classifier}, which incorporates descriptions of the target removal objects as negative local prompts, thereby enhancing their suppression during the editing process.
-The more details of the application of our proposed techniques to different editing tasks are given in \textcolor{red}{Appendix xx}.
+The more details of the application of our proposed techniques to different editing tasks are given in \textcolor{red}{Appendix B}.
 
 % The application of the techniques to other editing tasks, like in the replacement and removal, requires some other minor tweaking. For instance, in the replacement and removal, there is no readily available description for the background region (the source prompt is not aligned with the background region), we do not apply a local prompt for the background area and only apply local prompts to the edit area. The local 
 
