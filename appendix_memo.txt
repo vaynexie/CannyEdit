@@ -1,0 +1,27 @@
+Furthermore, to facilitate smoother transitions between edited and unedited regions, we propose reducing the control strength $\beta$ on the mask boundary within the background region. This is achieved by attenuating $\beta$ based on its distance to the center of the mask (details in Appendix A),
+
+A more detailed discussion on applying these techniques to diverse editing tasks—such as object transfer while preserving object shapes, or modifying the environment/atmosphere of a specific region—is provided in \textcolor{red}{Appendix B}, where we also explores how our method can be extended to handle multiple edits within a single generation pass.
+
+. Example images from the benchmark are shown in {Figures \ref{logo}, \ref{fig2} and \ref{fig:qualitative_RICE22}}, with details of data curation provided in Appendix D
+
+More details, including machines used, hyperparameters, and a computational cost analysis for CannyEdit, are provided in \textcolor{red}{Appendix C}.
+
+A screening test ensured data quality: participants were required to evaluate 10 individual images (including images from different editing methods and unedited real images) as AI-edited or real, and those with poor accuracy (correct rate <50\%) were excluded (2 from the public group). Further study details are provided in {Appendix E}.
+
+
+F.1
+\caption{Examples of edits using our CannyEdit, KV-Edit~\citep{zhu2025kv}, and GPT-4o~\citep{OpenAI2025Introducing4O} (detailed text prompts and masks are omitted here; see Appendix~F.1).}
+(detailed text prompts and masks are omitted here; see Appendix F.1).}
+
+Examples of applying CannyEdit to other editing tasks and more comparison results with close-source models, GPT-4o \citep{gpt4} and Gemini 2.0 Flash \citep{google_gemini2025} are provided in Appendix F.2.
+
+Our method can also support multiple edits at one pass of generation, an example is given in Figure \ref{logo} (a), more multi-edit examples are given in Appendix F.3.
+
+CannyEdit also introduces special treatments for the boundary region between edited and unedited areas to ensure a smoother visual transition, using reduced Canny control and attention attending to the edited region. Examples in {Appendix F.4} Additional visual examples of various ablations are also provided in the appendix.
+
+In \textcolor{red}{Appendix F.5}, we further demonstrate that CannyEdit remains robust to different mask shapes, including rectangular and user-drawn styles.
+
+
+We discussed the societal impact of our method in Appendix G.
+We provide the limitations and potential improvements for our method in Appendix G.
+
