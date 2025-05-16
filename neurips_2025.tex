@@ -307,8 +307,8 @@ In summary, we make the following key contributions in this paper:
 
 \vspace{-1mm}
 
-\item CannyEdit serves as a flexible and versatile editing framework applicable to various regional image editing tasks, including insertion, replacement, removal, object transfer, and context modifications.
-\kc{In principle, our framework can also be easily extended to incorporate other forms of control unit such as IP-Adapter~\cite{}, ....}
+\item CannyEdit serves as a flexible and versatile editing framework applicable to various regional image editing tasks, including insertion, replacement, removal, object transfer, and context modifications. 
+\kc{In principle, our framework can also be easily extended to incorporate other forms of control unit such as IP-Adapter~\cite{}, .... CannyEdit also supports multiple edits in one pass of generation.} 
 
 \vspace{-1mm}
 
@@ -437,7 +437,7 @@ Introducing controllability in T2I generation is a significant advancement, as i
 
 \begin{wrapfigure}{r}{0.5\textwidth}
   \vspace{-12pt} % Optional: to pull the figure up slightly
-    \includegraphics[width=1\linewidth,height=3.35cm]{figures/FLUX-double-controlnet.pdf}
+    \includegraphics[width=1\linewidth]{figures/FLUX-double-controlnet.pdf}
     \caption{The architecture of Multi-stream block in FLUX and in FLUX-ControlNet.}
     \label{fig:FLUX_controlnet}
       \vspace{-5pt} % Optional: reduce space below the figure
@@ -540,12 +540,8 @@ Among various inversion methods proposed for RF-based models \citep{rout2024sema
 % $\mathbf{z}_{t_{N}}\in\mathcal{N}(0,\boldsymbol{I})$, and the predicted noise sample during each denoising step $t$ is denoted as $\mathbf{z}_{t}$ where $t=\{t_{N},...,t_{0}\}$. In the context of image editing, to maintain the information of the source image, we follow previous practice to start the denoising from the inverted noise of the source image as prior knowledge for editing. The inversion is a process to map observed data
 % back to its latent representations. We denote the sample at each timestep obtained via inversion as $\mathbf{x}_{t}$, where $t=\{t_{0},...,t_{N}\}$. Ideally, $\mathbf{z}_{t_0}$ should be identity with $\mathbf{x}_{t_0}$ when directly reconstructed from $\mathbf{x}_{t_N}$. Multiple inversion methods have been proposed for the Rectified Flow-based models \citep{rout2024semantic, wang2024taming, deng2024fireflow}. We here apply the FireFlow \citep{deng2024fireflow}  as it maintains a good balance of the inversion precision and computational cost. 
 
-Since our method leverages Canny ControlNet, we integrate it into the inversion process. Specifically, we cache the source image's Canny ControlNet outputs, $\tilde{Z}^{\prime}_{\texttt{I}}$\footnote{Block index and timestep notation are omitted for simplicity.}, at each block and timestep throughout denoising. The immediate inverted noise latent $\mathbf{x}_t$ at each timestep $t$ can also be optionally cached for enhancing the preservation of image context.
 
-Our method integrates the Canny ControlNet into this inversion process. Specifically, during inversion, we compute and cache the Canny ControlNet outputs, $\tilde{Z}^{\prime}_{\texttt{I}}$\footnote{Block index and timestep notation are omitted for simplicity.}, from the source image at each relevant block and timestep. Optionally, the intermediate inverted noise latents $\mathbf{x}_t$ can also be cached at each timestep $t$ to further enhance the preservation of image context in unedited regions.
-
-
-Unlike in the inversion process, the full Canny ControlNet outputs are added into to the FLUX model, during the denoising for generating the edited image, we propose selective Canny control: given a user-provided mask indicating the edit region, the cached Canny ControlNet outputs in the unedited region are added into the FLUX model, while those in the edited region are masked out (detailed in Section \ref{sec:cannycontrol}). With the structural relaxation in the edit region, the text signal becomes crucial for directing the edits. We introduce a dual-prompt strategy that uses local prompts and a global target prompt to maintain text alignment and harmonious editing results, further explained in Section \ref{sec:dualprompt}.
+Our method integrates the Canny ControlNet into this inversion process. Specifically, during inversion, we compute and cache the Canny ControlNet outputs, $\tilde{Z}^{\prime}_{\texttt{I}}$\footnote{Block index and timestep notation are omitted for simplicity.}, from the source image at each relevant block and timestep. Optionally, the intermediate inverted noise latents $\mathbf{x}_t$ can also be cached at each timestep $t$ to further enhance the preservation of image context.
 
 
 % $\{\mathbf{x}_{t_0},\mathbf{x}_{t_{1}},\cdots,\mathbf{x}_{t_N}\}$ 
@@ -606,26 +602,26 @@ Unlike in the inversion process, the full Canny ControlNet outputs are added int
 \subsection{Selective Canny control}
 \label{sec:cannycontrol}
 
-Given a user-provided binary mask \( E \in \{0,1\}^{h \times w} \), where $h \times w$ is the number of image patches, and \( E_{ij} = 1 \) denotes editable regions.  We propose a selective Canny control mechanism that restricts layout guidance to the unedited region while eliminating the guidance signal to the edited region.
+During the denoising phase for generating the edited image, rather than incorporating the full Canny ControlNet outputs as in the inversion stage, we employ \textit{selective Canny control}. Given a user-provided mask that delineates the edit region, the cached Canny ControlNet outputs corresponding to the unedited region are added to the FLUX model, while outputs for the edited region are masked out. This targeted structural relaxation in the edit region elevates the importance of the text signal for guiding the modifications.
 
-This selective control is conducted by selectively masking the Canny ControlNet's outputs before adding them to the FLUX model:
+Given a user-provided binary mask $E \in \{0,1\}^{h \times w}$, where $h \times w$ is the number of image patches and $E_{ij} = 1$ denotes editable regions, our selective Canny control mechanism restricts Canny layout guidance to the unedited regions ($E_{ij}=0$) while eliminating it in the edited regions.
+This selective application is achieved by element-wise multiplication of the ControlNet output with the inverted mask $(1-E)$ before its addition to the FLUX model's image features:
 \begin{equation}
 Z_{\texttt{I}} \gets Z_{\texttt{I}} + \beta\cdot (1-E) \odot \mathrm{conv}({Z}^{\prime}_{\texttt{I}}).
 \label{eq:selective_Canny}
 \end{equation}
-In the generation of the edited image, ${Z}^{\prime}_{\texttt{I}}$ is the attention output from the Canny edge map tokens, text tokens of the target prompt, and noisy image tokens of the edited image. 
+Here, during the generation of the edited image, ${Z}^{\prime}_{\texttt{I}}$ represents the attention output derived from the Canny edge map tokens of the target structure, text tokens of the target prompt, and the noisy image tokens of the evolving edited image.
 
 %embedding of the Canny edge map tokens, text tokens of target prompt and the immediate image embedding of the edited image from the FLUX model. 
 
-In the context of image editing, we not only wish to preserve the general layout of the unedited region but also its visual details. In this scenario, the $\tilde{Z}^{\prime}_{\texttt{I}}$ derived from the inversion process serves as a more suitable choice. This is because it includes both the layout information provided by the Canny edge map and the visual features of the source image captured by the noisy image tokens of the source image during the inversion process. We therefore tweak Equation (\ref{eq:selective_Canny}) to:
+For image editing, preserving not only the general layout but also the visual details of unedited regions is crucial. The cached ControlNet outputs from the inversion process, $\tilde{Z}^{\prime}_{\texttt{I}}$, are more suitable for this purpose. This preference arises because $\tilde{Z}^{\prime}_{\texttt{I}}$ encapsulates both the layout information from the source image's Canny edge map and its visual features, the latter being captured through its noisy image tokens during inversion. We therefore refine Equation (\ref{eq:selective_Canny}) to use these cached values:
 \begin{equation}
 Z_{\texttt{I}} \gets Z_{\texttt{I}} + \beta\cdot (1-E) \odot \mathrm{conv}(\tilde{Z}^{\prime}_{\texttt{I}}).
 \label{eq:selective_Canny2}
 \end{equation}
-The $\tilde{Z}^{\prime}_{\texttt{I}}$ for different denoising blocks across various denoising steps are computed and cached during the inversion process. Thus, the Canny ControlNet can be discarded in the denoising process for efficient consideration. As an optional operation to supplement the background context information provided by $\tilde{Z}^{\prime}_{\texttt{I}}$, when the $\{\mathbf{x}_{t_{1}},...,\mathbf{x}_{t_{N}}\}$ is cached, cyclical blending can be applied to the unedited region:  $\mathbf{x}^\text{edit}_{t_\text{blend}}\gets \alpha\cdot\mathbf{x}^\text{edit}_{t_\text{blend}}+(1-\alpha)\cdot\mathbf{x}_{t_\text{blend}}$ where $t_\text{blend}$ is sampled at a pre-defined frequency.
+Since $\tilde{Z}^{\prime}_{\texttt{I}}$ (for all relevant blocks and denoising steps) are pre-computed and cached during inversion, the Canny ControlNet module itself can be omitted during the denoising phase for the edited image, improving computational efficiency. As an optional step to further enhance background context preservation using cached latents $\{\mathbf{x}_{t_{1}},...,\mathbf{x}_{t_{N}}\}$, cyclical blending can be applied to the unedited region: $\mathbf{x}^\text{edit}_{t_\text{blend}}\gets \alpha\cdot\mathbf{x}^\text{edit}_{t_\text{blend}}+(1-\alpha)\cdot\mathbf{x}_{t_\text{blend}}$, where $t_\text{blend}$ is sampled at a predefined frequency.
 
-
-Besides selectively masking on the edited region, we also propose to reduce the control strength on the mask boundary in the background region by lowering the $\beta$ value according its distance to the center of the mask (details in Appendix A.1). This allows for layout flexibility on the boundary, enabling smooth transitions between edited and unedited regions.  
+Furthermore, to facilitate smoother transitions between edited and unedited regions, we propose reducing the control strength $\beta$ on the mask boundary within the background region. This is achieved by attenuating $\beta$ based on its distance to the center of the mask (details in Appendix A.1), allowing for greater layout flexibility at the boundary.  
 
 % While the user-provided mask may not be precise, especially in editing where something new is added to the image, we apply mask refinement via segmentation models \citep{kirillov2023segment,ravi2024sam,medeiros2024langsegmentanything} to obtain the mask of the added object and refine the generation based on this mask (details are in Appendix A.2). This approach helps reduce unnecessary changes to the image context caused by the large mask. 
 
@@ -640,12 +636,16 @@ Besides selectively masking on the edited region, we also propose to reduce the 
 \subsection{Dual-prompt guidance}
 \label{sec:dualprompt}
 
-\subsubsection{General form}
-To provide text guidance for directing the text-aligned and seamless editing, we propose a dual-prompt guidance strategy. This approach combines local prompts, which provide region-specific textual signals, with a global target prompt, which incorporates complementary global context by integrating interactions between edited regions and the overall image. While ``dual-prompt'' refers to these two types of prompts, it can involve multiple local prompts to support edits across multiple regions simultaneously. For simplicity, we describe the implementation using two local prompts for providing guidance to two distinct regions, and it can easily extend to the case involving more local prompts.
+To achieve text-aligned and seamless edits, we introduce a dual-prompt guidance strategy. This approach combines local prompts, which provide region-specific textual signals, with a global target prompt, which captures interactions between the edited regions and the broader image context. Although termed ``dual-prompt,'' this strategy can accommodate multiple local prompts for simultaneous edits in several regions. For simplicity, we describe an implementation with two local prompts guiding two distinct regions; extension to more regions and prompts is straightforward.
 
-We denote the two image regions, their corresponding local prompts and global prompt  as $\texttt{I}_\texttt{1}$,  $\texttt{I}_\texttt{2}$,  $\texttt{T}_\texttt{1}$, $\texttt{T}_\texttt{2}$ and $\texttt{T}_\texttt{*}$, respectively, and \sout{the embedding length} \kc{the number of corresponding tokens} is denoted with $|\cdot|$. The query tensor is a concatenated tensor of the image tokens of two image regions and the text tokens of three prompts. We denote the query tensor as the concatenated features $ Q= [Q_{\texttt{I}_\texttt{1}}, Q_{\texttt{I}_\texttt{2}}, Q_{\texttt{T}_\texttt{1}}, Q_{\texttt{T}_\texttt{2}}, Q_{\texttt{T}_\texttt{*}}]$. So are the keys $K$ and values $V$. 
+\subsubsection{General formulation}
+% To provide text guidance for directing the text-aligned and seamless editing, we propose a dual-prompt guidance strategy. This approach combines local prompts, which provide region-specific textual signals, with a global target prompt, which incorporates complementary global context by integrating interactions between edited regions and the overall image. While ``dual-prompt'' refers to these two types of prompts, it can involve multiple local prompts to support edits across multiple regions simultaneously. For simplicity, we describe the implementation using two local prompts for providing guidance to two distinct regions, and it can easily extend to the case involving more local prompts.
 
-To apply multi-level and multi-region text guidance in a training-free manner, we apply the regional text control via attention mask in  the self-attention module of FLUX blocks (Equation (\ref{eq:FLUX_attention})), which is following prior work \citep{chen2024training}. With the involvement of an attention mask $M$, The attention computation in Equation (\ref{eq:FLUX_attention}) operation is changed to be a masked attention operation:
+% We denote the two image regions, their corresponding local prompts and global prompt  as $\texttt{I}_\texttt{1}$,  $\texttt{I}_\texttt{2}$,  $\texttt{T}_\texttt{1}$, $\texttt{T}_\texttt{2}$ and $\texttt{T}_\texttt{*}$, respectively, and \sout{the embedding length} \kc{the number of corresponding tokens} is denoted with $|\cdot|$. The query tensor is a concatenated tensor of the image tokens of two image regions and the text tokens of three prompts. We denote the query tensor as the concatenated features $ Q= [Q_{\texttt{I}_\texttt{1}}, Q_{\texttt{I}_\texttt{2}}, Q_{\texttt{T}_\texttt{1}}, Q_{\texttt{T}_\texttt{2}}, Q_{\texttt{T}_\texttt{*}}]$. So are the keys $K$ and values $V$. 
+
+Let the two image regions be $\texttt{I}_\texttt{1}$ and $\texttt{I}_\texttt{2}$, their corresponding local prompts be $\texttt{T}_\texttt{1}$ and $\texttt{T}_\texttt{2}$, and the global prompt be $\texttt{T}_\texttt{*}$. The number of tokens of these regions/prompts is denoted by $|\cdot|$. At each time step, the query matrix $Q$ is formed by concatenating the query of these tokens: $ Q= [Q_{\texttt{I}_\texttt{1}}, Q_{\texttt{I}_\texttt{2}}, Q_{\texttt{T}_\texttt{1}}, Q_{\texttt{T}_\texttt{2}}, Q_{\texttt{T}_\texttt{*}}]$. The key $K$ and value $V$ matrices are constructed analogously.
+
+Following prior work \citep{chen2024training}, we implement multi-level and multi-region text guidance in a training-free manner by applying regional text control via an attention mask $M$ within the self-attention module of the FLUX blocks (originally defined in Equation (\ref{eq:FLUX_attention})). The modified attention computation becomes:
 \begin{equation}
 Z = \mathrm{softmax}\left(\frac{QK^\top}{\sqrt{d_k}} \odot M\right)V, \quad\text{where }M = \begin{bmatrix}
         M_{\texttt{I}\to\texttt{I}} &  M_{\texttt{I}\to\texttt{T}} \\
@@ -653,15 +653,14 @@ Z = \mathrm{softmax}\left(\frac{QK^\top}{\sqrt{d_k}} \odot M\right)V, \quad\text
     \end{bmatrix}
 \label{eq:masked_attention}
 \end{equation}
-is the attention mask between the concatenated image-text tokens.
+is the attention mask applied to the concatenated image-text tokens.
 % Given the modality correspondence, $ M$ can be denoted as:
 % \begin{equation}
     
 % \end{equation}
-For the text-to-text (T2T) attention, To prevent information leakage of local guidance, each text prompt is restricted to attend only to its own tokens. We enforce this by using a block-diagonal attention mask: $M_{\texttt{T}\to\texttt{T}}=\mathrm{diag}(\mathbf{1}_{|\texttt{T}_\texttt{1}| \times |\texttt{T}_\texttt{1}|}, \mathbf{1}_{|\texttt{T}_\texttt{2}| \times |\texttt{T}_\texttt{2}|},\mathbf{1}_{|\texttt{T}_\texttt{*}| \times|\texttt{T}_\texttt{*}|})$, where the diagonal blocks  in the block-wise diagonal matrix are all-ones matrices that enable full self-attention inside each individual prompt, while all off-diagonal blocks are zero (masked), disabling cross-prompt interactions.
+For text-to-text (T2T) attention, $M_{\texttt{T}\to\texttt{T}}$, we prevent information leakage between distinct guidance signals by restricting each text prompt to attend only to its own tokens. This is enforced using a block-diagonal attention mask: $M_{\texttt{T}\to\texttt{T}}=\mathrm{diag}(\mathbf{1}_{|\texttt{T}_\texttt{1}| \times |\texttt{T}_\texttt{1}|}, \mathbf{1}_{|\texttt{T}_\texttt{2}| \times |\texttt{T}_\texttt{2}|},\mathbf{1}_{|\texttt{T}_\texttt{*}| \times|\texttt{T}_\texttt{*}|})$, where $\mathbf{1}_{n \times n}$ is an all-ones matrix of size $n \times n$. This structure enables full self-attention within each prompt while zeroing out off-diagonal blocks to disable cross-prompt interactions.
 
-
-For the attention between the text and the image (T2I), as we intend to use local prompts to provide guidance for specific region, and use a global target prompt to pass the interaction information among different regions, the $M_{\texttt{T}\to\texttt{I}}$ is designed to be:
+For text-to-image (T2I) attention, $M_{\texttt{T}\to\texttt{I}}$, local prompts provide guidance to their respective image regions, while the global target prompt interacts with all image regions to capture broader contextual information. This is achieved with:
 \begin{equation}
     M_{\texttt{T}\to\texttt{I}} = \begin{bmatrix}
         \mathbf{1}_{|\texttt{T}_\texttt{1}|\times|\texttt{I}_\texttt{1}|} &  \mathbf{0}_{|\texttt{T}_\texttt{1}|\times|\texttt{I}_\texttt{2}|}\\
@@ -669,19 +668,14 @@ For the attention between the text and the image (T2I), as we intend to use loca
          \mathbf{1}_{|\texttt{T}_\texttt{*}|\times|\texttt{I}_\texttt{1}|} &  \mathbf{1}_{|\texttt{T}_\texttt{*}|\times|\texttt{I}_\texttt{2}|}
     \end{bmatrix},
 \end{equation}
-and symmetrically we let $M_{\texttt{I}\to\texttt{T}}=(M_{\texttt{T}\to\texttt{I}})^\top$, allowing the bidirectional flow of information between the image and text modalities.
+where $\mathbf{0}_{n \times m}$ denotes an all-zeros matrix. Symmetrically, we let the image-to-text (I2T) attention $M_{\texttt{I}\to\texttt{T}}=(M_{\texttt{T}\to\texttt{I}})^\top$ to allow bidirectional information flow between modalities.
+% and symmetrically we let $M_{\texttt{I}\to\texttt{T}}=(M_{\texttt{T}\to\texttt{I}})^\top$, allowing the bidirectional flow of information between the image and text modalities.
 
-For the attention among image tokens (I2I), by default we allow attention only within each region: $M_{\texttt{I}\to\texttt{I}}=\mathrm{diag}(\mathbf{1}_{|\texttt{I}_\texttt{1}| \times |\texttt{I}_\texttt{1}|}, \mathbf{1}_{|\texttt{I}_\texttt{2}| \times |\texttt{I}_\texttt{2}|})$, maintaining the integrity of region-specific edits.
+Finally, for image-to-image (I2I) attention, $M_{\texttt{I}\to\texttt{I}}$, by default we only allow attention only within each respective region: $M_{\texttt{I}\to\texttt{I}}=\mathrm{diag}(\mathbf{1}_{|\texttt{I}_\texttt{1}| \times |\texttt{I}_\texttt{1}|}, \mathbf{1}_{|\texttt{I}_\texttt{2}| \times |\texttt{I}_\texttt{2}|})$, thereby maintaining the integrity of region-specific processing.
 
-\subsubsection{Tweaking from general form to practical editing tasks}
+\subsubsection{Adjustments for practical editing tasks}
 
-By default, $M_{\texttt{I}\to\texttt{I}}$ is designed to function as a block-diagonal attention mask when all regions are considered editable. In the practical implementation of editing tasks, this design can be adjusted based on the nature of the regions. For instance, in the case of adding new content where $\texttt{I}_\texttt{1}$ is the edit region and $\texttt{I}_\texttt{2}$ is the background region,
-% (e.g., $I_1=I_{bg}$, $I_2=I_{edit}$)
-% where we aim to preserve its context,
-% the local prompt for the background region could be taken as the source prompt, $T_1=P_\text{source}$.
-the local prompt $\texttt{T}_\texttt{2}$ for the background region could be taken as the source prompt.
-In this scenario, the $M_{\texttt{I}\to\texttt{I}}$ can be modified as follows:
-
+The default block-diagonal $M_{\texttt{I}\to\texttt{I}}$ is suitable when all regions are considered independently editable. However, for practical editing tasks, this mask can be adjusted based on the roles of different regions. For instance, when adding new content, let $\texttt{I}_\texttt{1}$ be the edit region and $\texttt{I}_\texttt{2}$ be the background region. The local prompt $\texttt{T}_\texttt{2}$ for the background region can be the source image's original prompt. In this scenario, $M_{\texttt{I}\to\texttt{I}}$ can be modified to:
 \begin{equation}
     M_{\texttt{I}\to\texttt{I}}(\texttt{I}_\texttt{1}\to\texttt{I}_\texttt{2})%(\texttt{I}_\texttt{1}, \texttt{I}_\texttt{2})
     % = \mathrm{diag}(\mathbf{1}_{|\texttt{I}_\texttt{1}|^2}, \mathbf{1}_{|\texttt{I}_\texttt{2}|^2})+ \begin{bmatrix}
@@ -692,11 +686,10 @@ In this scenario, the $M_{\texttt{I}\to\texttt{I}}$ can be modified as follows:
     \begin{bmatrix}
         \mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{1}|} &  \mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{2}|}\\
         \mathbf{0}_{|\texttt{I}_\texttt{2}|\times|\texttt{I}_\texttt{1}|} &  \mathbf{1}_{|\texttt{I}_\texttt{2}|\times|\texttt{I}_\texttt{2}|}
-    \end{bmatrix},
+    \end{bmatrix}.
     \label{eq:i2i_1}
 \end{equation}
-
-where we additionally allow the edit region $\texttt{I}_\texttt{1}$ to attend to the background region $\texttt{I}_\texttt{2}$ through $\mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{2}|}$. This adjustment allows the model to integrate contextual information from the background region into the edited region, allowing the more context-aware edit. This masking approach can also be simply extended to multiple editable regions while preserving the background.
+This adjustment, through the $\mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{2}|}$ block, allows the edit region $\texttt{I}_\texttt{1}$ to attend to the background region $\texttt{I}_\texttt{2}$. This enables the model to integrate contextual information from the background, leading to a more context-aware edit. This masking approach can be extended to scenarios with multiple editable regions while preserving background integrity.
 
 % To seamlessly blend the edited and background regions, we further refine the I2I attention related to the background region near the boundary of the edited part. The region is denoted as $\texttt{I}_\texttt{:}$ and the region not in the boundary as ${I}_{\text{bg(nbd)}}$. Define the $M_{\texttt{I}\to\texttt{I}}(\texttt{I}_\texttt{1},\texttt{I}_\texttt{:}, \texttt{I}_\texttt{2})$ as:
 % \begin{equation}
@@ -708,7 +701,7 @@ where we additionally allow the edit region $\texttt{I}_\texttt{1}$ to attend to
 %     \end{bmatrix}.
 % \label{eq:i2i_2}
 % \end{equation}
-To seamlessly blend the edited and background regions, we further refine the I2I attention related to the background region near the boundary of the edited part. The region is denoted as $\texttt{I}_\texttt{:}$ and the background region not at the boundary as $\texttt{I}_\texttt{2}$. Define $M_{\texttt{I}\to\texttt{I}}(\texttt{I}_\texttt{1}\to\texttt{I}_\texttt{2};\  \texttt{I}_\texttt{1}\leftrightarrow\texttt{I}_\texttt{:}\!\leftrightarrow \texttt{I}_\texttt{2})$ as:
+To further enhance seamless blending between edited and background regions, we refine I2I attention involving the background area adjacent to the edit boundary. Let $\texttt{I}_\texttt{1}$ be the edit region, $\texttt{I}_\texttt{:}$ be the portion of the background region at the boundary of $\texttt{I}_\texttt{1}$, and $\texttt{I}_\texttt{2}$ be the remaining background region (distinct from $\texttt{I}_\texttt{:}$ and $\texttt{I}_\texttt{1}$). The I2I attention mask is then defined as
 \begin{equation}
 M_{\texttt{I}\to\texttt{I}}(\texttt{I}_\texttt{1}\to\texttt{I}_\texttt{2};\  \texttt{I}_\texttt{1}\leftrightarrow\texttt{I}_\texttt{:}\!\leftrightarrow \texttt{I}_\texttt{2}) =   \begin{bmatrix}
         \mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{1}|} &  \mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{:}|}&\mathbf{1}_{|\texttt{I}_\texttt{1}|\times|\texttt{I}_\texttt{2}|}\\
@@ -718,8 +711,7 @@ M_{\texttt{I}\to\texttt{I}}(\texttt{I}_\texttt{1}\to\texttt{I}_\texttt{2};\  \te
     \end{bmatrix}.
 \label{eq:i2i_2}
 \end{equation}
-The change from Equation (\ref{eq:i2i_1}) to Equation (\ref{eq:i2i_2}) lies in the boxed block $\mathbf{1}_{|\texttt{I}_\texttt{:}|\times|\texttt{I}_\texttt{1}|}$.
-With this modification, background region on the boundary of the mask region can now attends to the edit region,  enabling the model to  incorporate contextual cues from the edited region into the boundary areas. As a result, the boundary areas can better align visually and semantically with the edits, reducing artifacts and improving the overall coherence of the image.
+The key change from Equation (\ref{eq:i2i_1}) is the introduction of the boxed block $\mathbf{1}_{|\texttt{I}_\texttt{:}|\times|\texttt{I}_\texttt{1}|}$. This modification allows the background region at the boundary ($\texttt{I}_\texttt{:}$) to attend to the edit region ($\texttt{I}_\texttt{1}$), enabling the model to incorporate contextual cues from the edited content into these boundary areas. Consequently, the boundary regions can better align visually and semantically with the edits, reducing artifacts and improving overall image coherence.
 
 % This approach can be simply extended to multiple editable regions while preserving the background:
 % \begin{equation*}
@@ -730,9 +722,11 @@ With this modification, background region on the boundary of the mask region can
 % \mathbf{1}_{|I_\text{editn}|\times|\texttt{I}_\texttt{1}|} & \mathbf{0}_{|I_\text{editn}|\times|I_\text{edit2}|} & \dots & \mathbf{0}_{|I_\text{editn}|\times|I_\text{editn}|}
 % \end{bmatrix}
 % \end{equation*}
-\subsubsection{Prompting for different editing tasks}
+\subsubsection{Prompting strategies for various editing tasks}
 
-The local prompts vary across different editing tasks. In addition and replacement tasks, the local prompts specify the objects to be added or those replacing the existing ones. For removal tasks, we default to using ``empty background" as the local prompt. To more effectively remove existing objects, we employ class-free guidance \citep{ho2022classifier}, incorporate descriptions of the target objects to be removed as negative local prompts, A more detailed introduction of how these techniques can be applied to different editing tasks, such as object transfer with preserved object shapes or modification on the environment or atmosphere of a specific region is provided in \textcolor{red}{Appendix B}. The Appendix also delves into how our method can be extended to handle multiple edits in a single generation pass.
+% The local prompts vary across different editing tasks. In addition and replacement tasks, the local prompts specify the objects to be added or those replacing the existing ones. For removal tasks, we default to using ``empty background" as the local prompt. To more effectively remove existing objects, we employ class-free guidance \citep{ho2022classifier}, incorporate descriptions of the target objects to be removed as negative local prompts, A more detailed introduction of how these techniques can be applied to different editing tasks, such as object transfer with preserved object shapes or modification on the environment or atmosphere of a specific region is provided in \textcolor{red}{Appendix B}. The Appendix also delves into how our method can be extended to handle multiple edits in a single generation pass.
+
+The specifics of local prompts vary depending on the editing task. For object insertion and replacement, local prompts describe the objects to be introduced or the new objects that will substitute existing ones. For object removal, the default local prompt we use is ``empty background''. We also employ classifier-free guidance \citep{ho2022classifier} by using descriptions of the objects targeted for removal as negative local prompts. A more detailed discussion on applying these techniques to diverse editing tasks—such as object transfer while preserving object shapes, or modifying the environment/atmosphere of a specific region—is provided in \textcolor{red}{Appendix B}, where we also explores how our method can be extended to handle multiple edits within a single generation pass.
 
 %thereby improving their suppression during editing.
 % Furthermore, the local prompts used in different editing tasks differ. In the adding and replacement task, the local prompts represent the objects to add or to replace the existing objects. In the removal task, we use ``empty background'' as the local prompt by default. To more effectively eliminate existing objects, we apply class-free guidance \citep{ho2022classifier}, which incorporates descriptions of the target removal objects as negative local prompts, thereby enhancing their suppression during the editing process. The more details of the application of our proposed techniques to different editing tasks are given in \textcolor{red}{Appendix B}.
@@ -1109,7 +1103,9 @@ Besides, we further expand evaluation to PIE-bench, including more number of ima
 
 \subsection{Ablation study}
 
-We validate the effectiveness of key modules in CannyEdit based on adding and replacement examaples in RICE-Bench.  As shown in Table~\ref{tab:ablation-study}, not using cached ControlNet outputs but use the ControlNet outputs are current generation (i.e., applying selective Canny control from Equation~(\ref{eq:selective_Canny})) or omitting Canny control during image generation leads to a noticeable drop in context fidelity. In contrast, applying full Canny control throughout the process improve context preservation but significantly weakens the model's ability to follow the textual editing instructions. However, this text adherence performance is still better than that of KV-Edit Furthermore, ablations on the dual-prompt guidance indicate that both local prompts and the global target prompt play vital roles in achieving successful edits. CannyEdit introduces cyclic blending, which blends background features from the original image at a fixed frequency. While blending at every denoising step better preserves image context, it compromises adherence to the text instructions and reduces editing precision (but still better than KV-Edit). 
+We validate the effectiveness of key modules in CannyEdit using addition and replacement examples from RICE-Bench. As shown in Table~\ref{tab:ablation-study}, not using cached ControlNet outputs but instead relying on the outputs in current denoising process (i.e., applying selective Canny control from Equation~(\ref{eq:selective_Canny})) or omitting Canny control during image generation significantly reduces context fidelity. In contrast, full Canny control improves context preservation but weakens adherence to textual editing instructions, though still outperforming KV-Edit. Ablations on dual-prompt guidance highlight the importance of both local and global prompts for successful edits. CannyEdit introduces cyclic blending, which blends background features from the original image at a fixed frequency. While blending at every denoising step better preserves image context, it compromises adherence to the text instructions and reduces editing precision (but still surpassing KV-Edit).
+
+% We validate the effectiveness of key modules in CannyEdit based on adding and replacement examaples in RICE-Bench.  As shown in Table~\ref{tab:ablation-study}, not using cached ControlNet outputs but use the ControlNet outputs are current generation (i.e., applying selective Canny control from Equation~(\ref{eq:selective_Canny})) or omitting Canny control during image generation leads to a noticeable drop in context fidelity. In contrast, applying full Canny control throughout the process improve context preservation but significantly weakens the model's ability to follow the textual editing instructions. However, this text adherence performance is still better than that of KV-Edit Furthermore, ablations on the dual-prompt guidance indicate that both local prompts and the global target prompt play vital roles in achieving successful edits. CannyEdit introduces cyclic blending, which blends background features from the original image at a fixed frequency. While blending at every denoising step better preserves image context, it compromises adherence to the text instructions and reduces editing precision (but still better than KV-Edit). 
 
 % In the adding task, we apply mask refinement via segmentation models to avoid the change on other objects covered in the user-provided masks. The results of with and without mask refinement in Table~\ref{tab:ablation-study} show that the mask refinement can help with the preservation of image context better. While it would lead to minor desreament on the text adherence, it still lead to a better overall trade-off.
 
@@ -1120,7 +1116,57 @@ CannyEdit also introduces special treatments for the boundary region between edi
 
 \subsection{Qualitative examples}
 
-\textcolor{red}{In Figure xx, }
+Figure \ref{fig:qualitative_RICE22} presents additional visual comparisons of CannyEdit, KV-Edit, and the training-based method PowerPaint-FLUX. These examples demonstrate that CannyEdit achieves a strong balance between context fidelity, text adherence, and editing seamlessness. In contrast, KV-Edit often struggles to follow text prompts, while PowerPaint-FLUX shows noticeable degradation in image quality. Our method can also support multiple edits at one pass of generation, an example is given in Figure \ref{logo} (a), more multi-edit examples are given in Appendix XX. 
+
+ 
+
+\begin{figure}[h!]
+\begin{center}
+\begin{tabular}{@{\hskip 1pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 5pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 1pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 1pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 5pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 1pt} p{\dimexpr\textwidth/9\relax}
+                   @{\hskip 1pt} p{\dimexpr\textwidth/9\relax} @{}}
+
+ & \multicolumn{3}{c}{\tiny (a) \textbf{Add} a woman embracing the man.} & 
+\multicolumn{3}{c}{\tiny (b) \textbf{Replace} the man with a woman}  \\
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_1.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_2.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_3.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_4.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_5.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_6.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/1_7.jpg} \\[-1pt]
+
+ & \multicolumn{3}{c}{\tiny (c) \textbf{Replace} the dog with a boy.} & 
+\multicolumn{3}{c}{\tiny (d) \textbf{Remove} the boy.} \\
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_1.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_2.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_3.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_4.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_5.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_6.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/2_7.png}  \\[-1pt]
+
+ & \multicolumn{3}{c}{\tiny (e) \textbf{Replace} the male player with a female player.} &
+\multicolumn{3}{c}{\tiny (f) \textbf{Remove} the football player.} \\
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_1.jpg} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_2.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_3.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_4.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_5.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_6.png} &
+\includegraphics[width=\linewidth,  height=1.5cm]{figures/f2/3_7.png}  \\
+\multicolumn{1}{c}{{\scriptsize Input}} &\multicolumn{1}{c}{{\scriptsize CannyEdit}} &\multicolumn{1}{c}{{\scriptsize KV-Edit~\citep{zhu2025kv}}}&\multicolumn{1}{l}{{\scriptsize PowerPaint~\cite{zhuang2023task}}} &\multicolumn{1}{c}{{\scriptsize CannyEdit}} &\multicolumn{1}{c}{{\scriptsize KV-Edit~\citep{zhu2025kv}}} &\multicolumn{1}{l}{{\scriptsize PowerPaint~\cite{zhuang2023task}}}  \\
+\end{tabular}
+\caption{Qualitative examples of edits using our CannyEdit, KV-Edit, and PowerPaint-FLUX. The samples are from the RICE-Bench (detailed text prompts and masks are omitted here; see Appendix~XX).}
+\label{fig:qualitative_RICE22}
+\end{center}
+\end{figure}
+
+% \textcolor{red}{In Figure \ref{fig:qualitative_RICE}, we displays qualitative examples of regional image editing across Add, Replace and Removal. The samples are taken from the manipulated RICE-bench.}
 
 
 
