@@ -1,0 +1,279 @@
+body {
+  font-family: 'Noto Sans', sans-serif;
+}
+
+
+.footer .icon-link {
+    font-size: 25px;
+    color: #000;
+}
+
+.link-block a {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.dnerf {
+  font-variant: small-caps;
+}
+
+
+.teaser .hero-body {
+  padding-top: 0;
+  padding-bottom: 3rem;
+}
+
+.teaser {
+  font-family: 'Google Sans', sans-serif;
+}
+
+
+.publication-title {
+}
+
+.publication-banner {
+  max-height: parent;
+
+}
+
+.publication-banner video {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+  object-fit: fit;
+}
+
+.publication-header .hero-body {
+}
+
+.publication-title {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-authors {
+    font-family: 'Google Sans', sans-serif;
+}
+
+.publication-venue {
+    color: #555;
+    width: fit-content;
+    font-weight: bold;
+}
+
+.publication-awards {
+    color: #ff3860;
+    width: fit-content;
+    font-weight: bolder;
+}
+
+.publication-authors {
+}
+
+.publication-authors a {
+   color: hsl(204, 86%, 53%) !important;
+}
+
+.publication-authors a:hover {
+    text-decoration: underline;
+}
+
+.author-block {
+  display: inline-block;
+}
+
+.publication-banner img {
+}
+
+.publication-authors {
+  /*color: #4286f4;*/
+}
+
+.publication-video {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+
+    overflow: hidden;
+    border-radius: 10px !important;
+}
+
+.publication-video iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.publication-body img {
+}
+
+.results-carousel {
+  overflow: hidden;
+}
+
+.results-carousel .item {
+  margin: 5px;
+  overflow: hidden;
+  padding: 20px;
+  font-size: 0;
+}
+
+.results-carousel video {
+  margin: 0;
+}
+
+.slider-pagination .slider-page {
+  background: #000000;
+}
+
+.eql-cntrb { 
+  font-size: smaller;
+}
+
+.gallery {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-color: #f4f4f4;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    /*display: flex;*/
+    flex-wrap: wrap;
+    /*margin: 0 -10px; !* 使用负边距来调整列间距 *!*/
+}
+.gallery-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    text-align: center;
+    flex: 1 1 calc(50% - 20px);
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.gallery-images {
+    display: flex;
+    flex: 1;
+    width: 100%;
+}
+.gallery-images img {
+    flex: 1;
+    height: auto;
+    object-fit: cover; /* 确保图片等比缩放 */
+}
+.gallery-text {
+    padding: 10px;
+}
+
+.grid_container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    padding: 20px;
+}
+.grid_item {
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+.grid_item img {
+    max-width: 100%;
+    border-radius: 5px;
+}
+
+.overlay-image {
+    position: absolute; /* 绝对定位 */
+    top: 0;             /* 距离容器上方0 */
+    left: 0;            /* 距离容器左侧0 */
+    width: 25%;        /* 覆盖图片宽度为主图片的1/4 */
+    height: auto;      /* 高度自适应 */
+}
+.mask_container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.image1 {
+    position: absolute;
+    border: 1px solid #ccc;
+    top: 0;
+    left: 0;
+    width: auto;
+    height: 25%;
+}
+
+.image2 {
+    width: 100%;
+    height: auto;
+}
+
+.image3 {
+    margin-left: 20px; /* 添加左边距以保持间隔 */
+    width: 100px; /* 自定第三张图片的宽度 */
+    height: auto;
+}
+
+.title_icon {
+    /*width: 1em;         !* 使图片宽度与字体大小一致 *!*/
+    height: 0.81em;        /* 使图片高度与字体大小一致 */
+    margin-right: 0px;  /* 图片与标题之间的间距 */
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+}
+.color-button {
+    width: 100px;
+    height: 100px;
+    margin: 0 10px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: white;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.red { background-color: red; }
+.blue { background-color: blue; }
+.green { background-color: green; }
+.yellow { background-color: orange; }
+/*section {*/
+/*    display: none; !* 默认隐藏所有 section *!*/
+/*    padding: 20px;*/
+/*    border: 1px solid #ccc;*/
+/*    margin: 20px;*/
+/*}*/
+
+.button-simple {
+    background-color: transparent;
+    border: 2px solid #3498db; /* 蓝色边框 */
+    color: #3498db; /* 蓝色字体 */
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-family: 'Google Sans', sans-serif;
+    margin: 2px;
+}
+
+.button-simple:hover {
+    background-color: #3498db; /* 悬停时背景变蓝 */
+    color: white; /* 悬停时字体变白 */
+}
+
+
+

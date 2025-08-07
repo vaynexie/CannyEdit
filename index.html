@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <!-- Meta tags for social media banners, these should be filled in appropriatly as they are your "business card" -->
+  <!-- Replace the content tag with appropriate information -->
+  <meta name="description" content="CannyEdit">
+  <meta property="og:title" content="CannyEdit"/>
+  <meta property="og:description" content="CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing"/>
+  <meta property="og:url" content="URL OF THE WEBSITE"/>
+  <!-- Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X630-->
+  <meta property="og:image" content="static/images/icon4-2.jpg" />
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="1200"/>
+
+
+<!--  <meta name="twitter:title" content="TWITTER BANNER TITLE META TAG">-->
+<!--  <meta name="twitter:description" content="TWITTER BANNER DESCRIPTION META TAG">-->
+<!--  &lt;!&ndash; Path to banner image, should be in the path listed below. Optimal dimenssions are 1200X600&ndash;&gt;-->
+<!--  <meta name="twitter:image" content="static/images/your_twitter_banner_image.jpg">-->
+<!--  <meta name="twitter:card" content="summary_large_image">-->
+  <!-- Keywords for your paper to be indexed by-->
+
+  <meta name="keywords" content="CannyEdit">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing</title>
+  <link rel="icon" type="image/x-icon" href="static/images/icon4-2.jpg">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+  rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/index.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+  <script defer src="static/js/fontawesome.all.min.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/index.js"></script>
+</head>
+<body>
+
+
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container is-max-desktop">
+        <div class="columns is-centered">
+          <div class="column has-text-centered">
+            <h1 class="title is-2 publication-title">
+                <img src="static/images/icon4-2.jpg" class="title_icon" style="width:64px;height:64px;vertical-align:middle;margin-right:10px;">
+                CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing
+            </h1>
+            <div class="is-size-5 publication-authors">
+              <!-- Paper authors -->
+              <span class="author-block">
+                <a href="" target="_blank">Weiyan Xie*</a>,</span>
+                <span class="author-block">
+                <a href="" target="_blank">Han Gao*</a>,</span>
+                <span class="author-block">
+                <a href="" target="_blank">Didan Deng*</a>,</span>
+                <span class="author-block">
+                <a href="" target="_blank">Kaican Li</a>,</span>
+                <span class="author-block">
+                <a href="" target="_blank">April Hua Liu</a>,</span>
+                  </div>
+              <div class="is-size-5 publication-authors">
+              <span class="author-block">
+                <a href="" target="_blank">Yongxiang Huang</a>,</span>
+              <span class="author-block">
+                <a href="" target="_blank">Nevin L. Zhang</a></span>
+            </div>
+
+
+<!--                  <div class="is-size-5 publication-authors">-->
+<!--                    <span class="author-block">Tongyi Lab</span>-->
+<!--                    <span class="eql-cntrb"><small><br><sup>*</sup>Indicates Equal Contribution-->
+<!--                        <sup>†</sup> Project leader.</small></span>-->
+<!--                  </div>-->
+
+<!--                  <div class="column has-text-centered">-->
+<!--                    <div class="publication-links">-->
+<!--                         &lt;!&ndash; Arxiv PDF link &ndash;&gt;-->
+<!--                      <span class="link-block">-->
+<!--                        <a href="https://arxiv.org/pdf/<ARXIV PAPER ID>.pdf" target="_blank"-->
+<!--                        class="external-link button is-normal is-rounded is-dark">-->
+<!--                        <span class="icon">-->
+<!--                          <i class="fas fa-file-pdf"></i>-->
+<!--                        </span>-->
+<!--                        <span>Paper</span>-->
+<!--                      </a>-->
+<!--                    </span>-->
+                    <!-- ArXiv abstract Link -->
+                    <span class="link-block">
+                      <a href="" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="ai ai-arxiv"></i>
+                      </span>
+                      <span>arXiv</span>
+                    </a>
+                  </span>
+
+
+
+
+
+
+                  <!-- Github link -->
+                  <span class="link-block">
+                    <a href="" target="_blank"
+                    class="external-link button is-normal is-rounded is-dark">
+                    <span class="icon">
+                      <i class="fab fa-github"></i>
+                    </span>
+                    <span>Code(Coming)</span>
+                  </a>
+                </span>
+
+
+              <!-- Supplementary model link -->
+                    <!-- <span class="link-block">
+                      <a href="http://127.0.0.1:5500/index.html" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-link"></i>
+                      </span>
+                      <span>Model(Coming)</span>
+                    </a>
+                  </span> -->
+              <!-- Supplementary model link -->
+                    <!-- <span class="link-block">
+                      <a href="https://www.modelscope.cn/models/iic/ACE_Plus/summary" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-link"></i>
+                      </span>
+                      <span>Model(MS)</span>
+                    </a>
+                  </span> -->
+                            <!-- Supplementary model link -->
+                    <span class="link-block">
+                      <a href="" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-link"></i>
+                      </span>
+                      <span>Demo(Coming)</span>
+                    </a>
+                  </span>
+                <!-- <span class="link-block">
+                      <a href="https://www.modelscope.cn/studios/iic/ACE-Plus/summary" target="_blank"
+                      class="external-link button is-normal is-rounded is-dark">
+                      <span class="icon">
+                        <i class="fas fa-link"></i>
+                      </span>
+                      <span>Demo(MS)</span>
+                    </a>
+                  </span> -->
+            </div>
+          </div>
+          
+          <div class="button-container">
+                <button class="button-simple" onclick="scrollToSection('typical_editing')">Typical editing tasks</button>
+                <button class="button-simple" onclick="scrollToSection('details_typical_editing')">Details for typical editing tasks</button>
+                <button class="button-simple" onclick="scrollToSection('more_typical_editing')">More examples of typical editing</button>
+                <button class="button-simple" onclick="scrollToSection('generalized_editing')">Generalized Editing Tasks</button>
+                <button class="button-simple" onclick="scrollToSection('multi_edit')">Multi-edit examples</button>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <!-- Demo -->
+<!-- End Demo -->
+
+<!-- Combined Highlights Section -->
+<section id="highlights" class="hero is-small is-light">
+    <style>
+        /* Shared styling for the entire Highlights section */
+        
+        /* Main title styling */
+        .highlight-title-container {
+            text-align: center;
+            margin-bottom: 2.5rem; /* Increased margin for better spacing */
+        }
+
+        .highlight-title {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff4e50, #f9d423);
+            -webkit-background-clip: text;
+            -moz-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 3em; /* Slightly larger for the main title */
+            font-weight: bold;
+            padding-bottom: 10px;
+            border-bottom: 4px solid;
+            border-image: linear-gradient(45deg, #ff4e50, #f9d423) 1;
+        }
+
+        /* Sub-highlight title and description styling */
+        .highlight-point {
+            margin-top: 3rem; /* Space between highlight points */
+            margin-bottom: 2rem;
+            text-align: center;
+            /* Add a separator line for all but the first point */
+            border-top: 1px solid #e0e0e0;
+            padding-top: 3rem;
+        }
+        
+        /* Remove top border and adjust margin for the very first highlight point */
+        .highlight-point:first-of-type {
+            margin-top: 3rem;
+            border-top: none;
+            padding-top: 0;
+        }
+        
+        .highlight-point-title {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-point-description {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 1.1em;
+        }
+        
+        /* Styling for the new sub-points in Highlight 3 */
+        .highlight-sub-point {
+            margin-top: 2.5rem;
+        }
+        
+        .highlight-sub-point-description {
+            font-size: 1.1em;
+            font-style: italic;
+            color: #555;
+            max-width: 700px;
+            margin: 0 auto 1.5rem auto;
+        }
+
+        /* Styles for the inner CannyEdit carousel (Result/Mask) */
+        .canny-edit-carousel {
+            position: relative;
+            width: 100%;
+            max-width: 260px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .canny-edit-carousel .canny-edit-item {
+            display: none; /* Hidden by default */
+        }
+        
+        .canny-edit-carousel .canny-edit-item img {
+            width: 100%;
+            display: block;
+        }
+
+        /* Navigation buttons for the inner carousel */
+        .canny-edit-carousel .canny-nav-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.55);
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 2px;
+            z-index: 10;
+            font-size: 16px;
+            border-radius: 50%;
+            width: 2px;
+            height: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .canny-edit-carousel .canny-nav-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .canny-edit-carousel .canny-prev { left: 8px; }
+        .canny-edit-carousel .canny-next { right: 8px; }
+        
+        /* Subtitle for Result/Mask overlay */
+        .canny-edit-item .overlay-subtitle {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            text-align: center;
+            margin: 0;
+            padding: 6px 0;
+            font-size: 7px;
+            font-weight: bold;
+        }
+    </style>
+
+    <div class="hero-body">
+        <div class="container">
+            <!-- Main Title for the Entire Section -->
+            <div class="highlight-title-container">
+                <h2 class="title is-3 highlight-title">✨ Highlights ✨</h2>
+            </div>
+
+            <!-- ===== Highlight Point 1: Region-Specified Edits ===== -->
+            <div class="highlight-point">
+                <h3 class="title is-4 highlight-point-title">1. High-Quality Region-Specific Image Edits</h3>
+                <p class="subtitle highlight-point-description">
+                    Our method enables high-quality region-specific image edits, especially useful in cases where SOTA free-form image editing methods fail to ground edits accurately.
+                </p>
+
+
+            </div>
+
+            <div id="highlights-carousel-1" class="carousel results-carousel">
+                <!-- First set of examples for Highlight 1 -->
+                <div class="item">
+                    <!-- Example 1.3 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a cyclist riding the bike, wearing a green and yellow jersey and sunglasses.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/4.jpeg" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/4_C.jpeg" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/4_3.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/4_kontext.jpeg" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/4_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/4_doubao.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Example 1.2 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a child in a vibrant striped shirt and matching shorts dashes joyfully across the grassy field.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/flux_36.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/flux_36_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/2_3.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/2_kontext.webp" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/2_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/2_doubao.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Second set of examples for Highlight 1 -->
+                <div class="item">
+                    <!-- Example 1.1 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a woman energetically jogging on a treadmill.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/flux_42.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/flux_42_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/1_3.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/1_kontext.webp" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/1_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/1_doubao.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Example 1.4 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> an umpire closely observes the play after the catcher.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/3.jpeg" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/4_2.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/3_c.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/3_kontext.jpeg" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/3_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/3_doubao.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Highlight Point 2: Multiple Edits ===== -->
+            <div class="highlight-point">
+                <h3 class="title is-4 highlight-point-title">2. Support Multiple Edits at One Pass</h3>
+                <p class="subtitle highlight-point-description">
+                    Our methods can support edits on multiple user-specific regions at one generation pass when multiple masks are given.
+                </p>
+            </div>
+
+            <div id="highlights-carousel-2" class="carousel results-carousel">
+                <!-- First set of examples for Highlight 2 -->
+                <div class="item">
+                    <!-- Example 2.1 -->
+                    <div>
+                          <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a slide + <strong>Add</strong> a group of elderly men and women practicing Tai Chi.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b1.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b1_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b1_mask.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b1_context.png" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b1_4o.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b1_dou.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example 2.2 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a panda logo at the left door + <strong>Add</strong> a cat logo at the right flowerpot.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b2.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b2_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b2_mask.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b2_context.png" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b2_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b2_dou.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Second set of examples for Highlight 2 -->
+                <div class="item">
+                    <!-- Example 2.3 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                         <strong>Add</strong> a slide + <strong>Add</strong> a swimming pool with children playing on them.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b3.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b3_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b3_mask.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b3_context.png" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b3_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b3_dou.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example 2.4 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a woman customer reading a menu + <strong>Add</strong> a waiter ready to serve.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b4.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <div class="canny-edit-carousel">
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b4_c.png" alt="CannyEdit Result"><h5 class="overlay-subtitle">Result</h5></div>
+                                    <div class="canny-edit-item"><img src="static/figures/highlights/b4_mask.png" alt="CannyEdit Mask"><h5 class="overlay-subtitle">Mask</h5></div>
+                                    <button class="canny-nav-button canny-prev">&#10094;</button><button class="canny-nav-button canny-next">&#10095;</button>
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b4_context.png" alt="FLUX.1 Kontext [dev] Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">FLUX.1 Kontext [dev]</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b4_gpt.png" alt="GPT-4o Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/highlights/b4_dou.png" alt="Doubao Result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Doubao</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== Highlight Point 3: Precise Local Control (NEW) ===== -->
+
+            <div class="highlight-point">
+                <h3 class="title is-4 highlight-point-title">3. Precise Local Control</h3>
+                
+                <!-- Sub-point a: Control by mask size -->
+                <div class="highlight-sub-point">
+                    <p class="highlight-sub-point-description">
+                        a. By specifying the mask size, our method effectively controls the size of the generated subject.
+                    </p>
+                    <!-- Example 3.1 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a sofa +  <strong>Add</strong> a painting on the wall.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/1_1.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/1_2.png" alt="Small cat result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Small Mask)</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/1_3.png" alt="Medium cat result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Medium Mask)</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/1_4.png" alt="Large cat result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Large Mask)</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example 3.2 -->
+                    <div>
+                        <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a slide + <strong>Add</strong> a swimming pool with children playing on them.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/2_1.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/2_2.png" alt="Small vase result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Small Mask)</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/2_3.png" alt="Medium vase result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Medium Mask)</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/2_4.png" alt="Large vase result" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (Large Mask)</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub-point b: Control by text details -->
+                <div class="highlight-sub-point">
+                    <p class="highlight-sub-point-description">
+                        b. By providing varying local details in the text, subjects with different visual characteristics are generated.
+                    </p>
+                    <!-- Example 3.3 -->
+                    <div>
+                         <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                            <strong>Add</strong> a sofa +  <strong>Add</strong> a painting on the wall.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/3_1.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/3_2.png" alt="Red gift box" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"a <strong>red</strong> gift box"</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/3_3.png" alt="Blue gift box" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"a <strong>blue</strong> gift box"</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/3_4.png" alt="Green gift box" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"a <strong>green</strong> gift box"</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Example 3.4 -->
+                    <div>
+                         <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                      <strong>Add</strong> a woman customer reading a menu + <strong>Add</strong> a waiter ready to serve.
+                        </h4>
+                        <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/4_1.png" alt="Input Image" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/4_2.png" alt="Sports car" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"a <strong>sports car</strong>"</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/4_3.png" alt="Vintage car" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"a <strong>vintage car</strong>"</h4>
+                            </div>
+                            <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                                <img src="static/figures/control/4_4.png" alt="SUV car" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered">"an <strong>SUV</strong>"</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+    <script>
+        // This single script handles all carousels on the page.
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize all inner carousels for CannyEdit (Result/Mask toggle)
+            const cannyCarousels = document.querySelectorAll('.canny-edit-carousel');
+            cannyCarousels.forEach(carousel => {
+                const items = carousel.querySelectorAll('.canny-edit-item');
+                const prevButton = carousel.querySelector('.canny-prev');
+                const nextButton = carousel.querySelector('.canny-next');
+                let currentIndex = 0;
+
+                if (items.length > 0) {
+                    const showItem = (index) => {
+                        items.forEach(item => item.style.display = 'none');
+                        items[index].style.display = 'block';
+                    };
+
+                    nextButton.addEventListener('click', () => {
+                        currentIndex = (currentIndex + 1) % items.length;
+                        showItem(currentIndex);
+                    });
+
+                    prevButton.addEventListener('click', () => {
+                        currentIndex = (currentIndex - 1 + items.length) % items.length;
+                        showItem(currentIndex);
+                    });
+
+                    showItem(currentIndex); // Show the first item initially
+                }
+            });
+
+            // This assumes you have a main carousel library like bulma-carousel to handle the outer carousels.
+            // You would initialize them here. For example:
+            /*
+            bulmaCarousel.attach('#highlights-carousel-1', {
+                slidesToScroll: 1,
+                slidesToShow: 1, // Shows one set of examples at a time
+                pagination: true,
+                loop: true,
+            });
+            
+            bulmaCarousel.attach('#highlights-carousel-2', {
+                slidesToScroll: 1,
+                slidesToShow: 1, // Shows one set of examples at a time
+                pagination: true,
+                loop: true,
+            });
+            */
+        });
+    </script>
+</section>
+<!-- End Combined Highlights Section -->
+
+
+
+
+
+
+
+
+
+<!-- Paper abstract -->
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by 
+            leveraging the generative priors of foundation models. However, existing methods struggle to balance 
+            text adherence in edited regions, context fidelity in unedited areas, and seamless integration of 
+            edits. We introduce <strong><em>CannyEdit</em></strong>, a novel training-free framework that addresses these 
+            challenges through two key innovations: (1) <strong><em>Selective Canny Control</em></strong>, which masks 
+            the structural guidance of Canny ControlNet in user-specified editable regions while strictly 
+            preserving the source image’s details in unedited areas via inversion-phase ControlNet information 
+            retention. This enables precise, text-driven edits without compromising contextual integrity. 
+            (2) <strong><em>Dual-Prompt Guidance</em></strong>, which combines local prompts for object-specific edits 
+            with a global target prompt to maintain coherent scene interactions. On real-world image editing 
+            tasks (addition, replacement, removal), CannyEdit outperforms prior methods like KV-Edit, achieving 
+            a 2.93%–10.49% improvement in the balance of text adherence and context fidelity. In terms of 
+            editing seamlessness, user studies reveal only 49.2% of general users and 42.0% of AIGC experts 
+            identified CannyEdit's results as AI-edited when paired with real images without edits, versus 
+            76.08–89.09% for competitor methods.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End paper abstract -->
+
+<!-- Method -->
+
+<section class="hero teaser">
+    <div class="container is-max-desktop">
+        <h2 class="title">Method</h2>
+        <div class="hero-body">
+            <img src="static/images/framework33.jpg" alt="method"/>
+            <p class="figure-caption"><b>The inversion-denoising process of CannyEdit.</b> 1) <i>inversion</i>: Starting from the source image, its Canny edge map, and a source prompt <span>&#40;</span>P<sub>source</sub><span>&#41;</span>, we use FireFlow<sup>[1]</sup> to obtain the inverted noise <span>&#40;</span><b>x</b><sub>t<sub>N</sub></sub><span>&#41;</span> and corresponding Canny ControlNet outputs. The immediate noisy latents during the inversion process {<b>x</b><sub>t<sub>1</sub></sub>,...,<b>x</b><sub>t<sub>N-1</sub></sub>} are also cached for enhancing the context fidelity. 2) <i>denoising</i>: Using the inverted noise <span>&#40;</span><b>x</b><sub>t<sub>N</sub></sub><span>&#41;</span>, we perform guided generation with selective Canny control (via a mask E), and dual prompts, <span>&#40;</span>P<sub>local</sub><span>&#41;</span> and <span>&#40;</span>P<sub>target</sub><span>&#41;</span>, to provide multi-level text guidance.</p>
+        </div>
+    </div>
+</section>
+<!-- End Method -->
+
+
+
+<!-- Subject Editing -->
+<section id="typical_editing" class="hero is-small is-light">
+    <div class="hero-body">
+        <div class="container">
+            <!-- Paper video. -->
+            <h2 class="title is-3">Typical editing tasks</h2>
+            <div id="subject-carousel-1" class="carousel results-carousel">
+                <div class="item">
+                    <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a woman with her dog and a student reading book on the lawn.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_1.png" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_2.png" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_3.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_4.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Replace</strong> the woman tennis player with a man tennis player.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_1.jpg" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_2.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_3.jpg" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_4.jpg" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Remove</strong> the umbrellas.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_1.jpg" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_2.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_3.jpg" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_4.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="item">
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a person running on the street.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_1.png" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_2.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_3.jpg" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_4.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a baseball catcher on the field.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_1.jpeg" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_2.jpeg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_3.jpeg" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_4.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Replace</strong> the pepper with three apples.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_1.jpg" alt="Character 1" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_2.png" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>CannyEdit(ours)</strong></h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_3.jpg" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">KV-Edit</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_4.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End Subject Editing -->
+
+<section id="details_typical_editing" class="hero is-small">
+    <div class="hero-body">
+        <div class="container">
+            <!-- Paper video. -->
+            <h2 class="title is-3">Details for typical editing tasks</h2>
+            <div id="subject-carousel-2" class="carousel results-carousel">
+                <div class="item">
+                    <h4 style="font-size: 16px; margin-bottom: 2px; margin-top: 8px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a woman with her dog and a student reading book on the lawn.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Add</strong> a woman with her dog and a student reading book on the lawn.<br>
+                                <strong>SourceP:</strong> A man in a blue shirt is jogging on a tree-lined path in a sunny park.<br>
+                                <strong>TargetP:</strong> A man jogs on a tree-lined path in a sunny park, while a woman walks her dog and a student reads on the grass.<br>
+                                <strong>LocalP 1:</strong> A student is engrossed in their book, sitting on the lush green lawn.<br>
+                                <strong>LocalP 2:</strong> A woman in a green jacket and a ponytail is strolling through the park with her small brown dog on a leash.
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_1.png" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/1_2.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Replace</strong> the woman tennis player with a man tennis player.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Replace</strong> the woman tennis player with a man tennis player.<br>
+                                <strong>SourceP:</strong> A female tennis player in action on a court, with spectators watching.<br>
+                                <strong>TargetP:</strong> A male tennis player in action on a court, with spectators watching.<br>
+                                <strong>LocalP:</strong> A male tennis player in action on a court.<br>
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_1.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/2_2.jpg" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Remove</strong> the umbrellas.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Remove</strong> the umbrellas.<br>
+                                <strong>SourceP:</strong> Two people walking in the rain with umbrellas.<br>
+                                <strong>TargetP:</strong> Two people walking in the rain.<br>
+                                <strong>Positive LocalP:</strong> Empty background.<br>
+                                <strong>Negative LocalP:</strong> Umbrellas.
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_1.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/3_2.jpg" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+                </div>
+    
+                <div class="item">
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a person running on the street.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Add</strong> a person running on the street.<br>
+                                <strong>SourceP:</strong> A construction site with barriers and signs.<br>
+                                <strong>TargetP:</strong> A construction site with barriers and signs, with a person jogging through the area.<br>
+                                <strong>LocalP:</strong> A person is running on a path, wearing athletic shoes and shorts.<br>
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_1.png" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/F.6/2_1_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/4_2.jpg" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Add</strong> a baseball catcher on the field.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; margin-bottom: 24px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Add</strong> a baseball catcher on the field.<br>
+                                <strong>SourceP:</strong> A baseball field with a net and a white line on the dirt.<br>
+                                <strong>TargetP:</strong> A baseball field with a net and a white line on the dirt, a catcher wearing protective gear and holding a mitt.<br>
+                                <strong>LocalP:</strong> A baseball catcher wearing a white uniform is kneeling on the ground and holding a mit.<br>
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_1.jpeg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/F.6/1_1_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/5_2.jpeg" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+    
+                    <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
+                        <strong>Replace</strong> the pepper with three apples.
+                    </h4>
+                    <div class="grid_container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 32px; justify-items: center; align-items: start;">
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <h4 style="font-size: 12px;" class="subtitle has-text-left"><strong>Replace</strong> the pepper with three apples.<br>
+                                <strong>SourceP:</strong> A red pepper on a towel.<br>
+                                <strong>TargetP:</strong> Three red apples on a towel.<br>
+                                <strong>LocalP:</strong> Three red apples.<br>
+                            </h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_1.jpg" alt="Character 2" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Input</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_mask.png" alt="Character 3" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">Mask</h4>
+                        </div>
+                        <div class="grid_item" style="display: flex; flex-direction: column; align-items: center;">
+                            <img src="static/figures/f1/6_2.png" alt="Character 4" style="width: 100%; max-width: 260px; height: auto; display: block;">
+                            <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit(ours)</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Portrait Editing -->
+
+<!-- End Portrait Editing -->
+
+
+<!-- General Editing -->
+<section id="more_typical_editing" class="hero is-small is-light">
+    <div class="hero-body">
+        <div class="container">
+            <h2 class="title is-3">More examples of typical editing</h2>
+            <div id="results-carousel-1" class="carousel results-carousel">
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/1_1.png" alt="Image 1A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/1_2.png" alt="Image 1B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong> a
+                                    woman embracing the man.</h4>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/1_1.png" alt="Image 2A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/1_5.jpg" alt="Image 2B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                    the man with a woman.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/2_1.jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/2_2.png" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                    the dog with a boy.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/2_1.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/2_5.png" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Remove</strong>
+                                    the dog.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+    
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/3_1.jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/3_2.png" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                    the male player with a female player.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f2/3_1.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f2/3_5.png" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Remove</strong>
+                                    the football player.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+                        
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f3/1_1.jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f3/1_3.jpg" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                     a hat to the table with flowers.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/f3/2_1.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/f3/2_3.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                    a deer in the forest.</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End General Editing -->
+
+<section id="generalized_editing" class="hero is-small">
+    <div class="hero-body">
+        <div class="container">
+            <h2 class="title is-3">Generalized Editing Tasks</h2>
+            <div id="results-carousel-2" class="carousel results-carousel">
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/111000000000.jpg" alt="Image 1A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/111000000000_e.png" alt="Image 1B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong> a
+                                    the fishes to sharks.</h4>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/112000000002.jpg" alt="Image 2A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/112000000002_e.png" alt="Image 2B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the cartoon boy to a cartoon girl.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/111000000003.jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/111000000003_e.jpg" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the bunny to a pig.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/111000000009.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/111000000009_e.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the rat to a pig.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/000000000019.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/000000000019_e.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the white tiger to a white cat.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/121000000001.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/121000000001_e.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the cat to a tiger.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+    
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/113000000008.jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/113000000008_e.png" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the teacup to a cake.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/123000000005.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/123000000005_e.png" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Transfer</strong>
+                                    the bread to meat.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+                        
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/kitchen2_resized.jpeg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/kitchen2_e.jpeg" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Modify context:</strong>
+                                     cover the table with food.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/thr [20]_resized.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/thr [19].jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Modify context:</strong>
+                                    fill the seats on the right with audience members.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/sky.jpeg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/sky [30].jpeg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Modify context:</strong>
+                                    make the sky cloudy.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.2/rainy_resized.png" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.2/rainy_e_resized.png" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Modify context:</strong>
+                                    change the cloudy sky to a blue sky with white clouds.</h4>
+                            </div>
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="multi_edit" class="hero is-small is-light">
+    <div class="hero-body">
+        <div class="container">
+            <h2 class="title is-3">Multi-edit examples</h2>
+            <div id="results-carousel-3" class="carousel results-carousel">
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/flux_8.png" alt="Image 1A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/flux_8_edit.png" alt="Image 1B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong> a
+                                    a female photographer + <strong>Add</strong> a child.</h4>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/flux_12.png" alt="Image 2A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/flux_12_edit.png" alt="Image 2B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                    a boy + <strong>Add</strong> a girl.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/flux_17.png" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/flux_17_edit.png" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                    a woman + <strong>Add</strong> another woman talking with a traffic officer.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/flux_42.png" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/flux_42_edit.png" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                    a woman jogging on the treadmill + <strong>Add</strong> a coach monitoring the training.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+    
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <!-- Your image here -->
+                    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/flux_38_1 [8].png" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/flux_38_1 [7].png" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                    the man with a woman + <strong>Add</strong> a child.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/meditation_1.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/meditation_1_e.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                    the man with a woman + <strong>Replace</strong> the sofa with a desk.</h4>
+                            </div>
+                        </div>
+                        <!-- Additional div blocks for more pairs of images can be added here -->
+                        
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/toy_1 [2].jpg" alt="Image 3A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/toy_1_1 [7].jpg" alt="Image 3B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Replace</strong>
+                                     the dog with a cat + <strong>Add</strong> a man standing on the roof.</h4>
+                            </div>
+                        </div>
+    
+                        <div style="flex: 1 1 calc(50% - 20px);">
+                            <div style="display: flex; flex-direction: column;">
+                                <div
+                                    style="display: flex; height: 200px; justify-content: center; border: 1px solid #ccc;">
+                                    <img src="static/figures/F.4/624000000004.jpg" alt="Image 4A"
+                                        style="height: 100%; width: auto; margin-right: 10px;">
+                                    <img src="static/figures/F.4/624000000004_e.jpg" alt="Image 4B"
+                                        style="height: 100%; width: auto;">
+                                </div>
+                                <h4 style="font-size: 16px;" class="subtitle has-text-centered"><strong>Add</strong>
+                                    a boy + <strong>Add</strong> a girl.</h4>
+                            </div>
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!--Local Editing-->
+
+<!-- End Local Editing -->
+
+  <!--Local Reference Editing-->
+
+<!-- End Local Editing -->
+
+<section class="section" id="sponsors">
+    <div class="container is-max-desktop content">
+      <h2 class="title">Powered by</h2>
+      <div class="hero-body">
+            <div style="display: flex; align-items: center; gap: 32px;">
+                <img src="static/images/ms-logo.svg" alt="ms-logo" style="height: 70px;">
+                <img src="static/images/ascend-logo.svg" alt="ascend-logo" style="height: 70px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<!--BibTex citation -->
+
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>
+        @article{xie2025canny,
+          title={CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing},
+          author={Xie, Weiyan and Gao, Han and Deng, Didan and Li, Kaican and Liu, April Hua and Huang, Yongxiang and Zhang, Nevin L.},
+          journal={arXiv preprint arXiv:xxx},
+          year={2025}
+        }
+      </code></pre>
+    </div>
+</section>
+<!--End BibTex citation -->
+
+
+<!-- Contact Section -->
+<section class="section" id="contact">
+  <div class="container is-max-desktop content" style="background-color: #f5f5f5; padding: 20px; border-radius: 8px;">
+    <h2 class="title">Contact</h2>
+    <p>Contact: Weiyan Xie via <a href="mailto:wxieai@cse.ust.hk">wxieai@cse.ust.hk</a> </p>
+  </div>
+</section>
+<!-- End Contact Section -->
+
+
+  <footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a> which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+    
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Statcounter tracking code -->
+
+<!-- You can add a tracker to track page visits by creating an account at statcounter.com -->
+
+    <!-- End of Statcounter Code -->
+
+
+<script>
+    function scrollToSection(sectionId) {
+        const section = document.getElementById(sectionId);
+        section.scrollIntoView();
+    }
+</script>
+
+</body>
+</html>
