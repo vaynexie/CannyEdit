@@ -12,13 +12,15 @@ Weiyan Xie*, Han Gao*, Didan Deng*, Kaican Li, April Hua Liu, Yongxiang Huang, N
 
 ### Affiliations
 
-Huawei Hong Kong AI Framework & Data Technologies Lab, 
-
-The Hong Kong University of Science and Technology,
-
-Shanghai University of Finance and Economics
+Huawei Hong Kong AI Framework & Data Technologies Lab, The Hong Kong University of Science and Technology, Shanghai University of Finance and Economics
 
 ---
+
+## Abstract
+
+Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by leveraging the generative priors of foundation models. However, existing methods struggle to balance text adherence in edited regions, context fidelity in unedited areas, and seamless integration of edits. We introduce **_CannyEdit_**, a novel training-free framework that addresses these challenges through two key innovations: (1) **_Selective Canny Control_**, which masks the structural guidance of Canny ControlNet in user-specified editable regions while strictly preserving the source image’s details in unedited areas via inversion-phase ControlNet information retention. This enables precise, text-driven edits without compromising contextual integrity. (2) **_Dual-Prompt Guidance_**, which combines local prompts for object-specific edits with a global target prompt to maintain coherent scene interactions. On real-world image editing tasks (addition, replacement, removal), CannyEdit outperforms prior methods like KV-Edit, achieving a 2.93%--10.49% improvement in the balance of text adherence and context fidelity. In terms of editing seamlessness, user studies reveal only 49.2% of general users and 42.0% of AIGC experts identified CannyEdit's results as AI-edited when paired with real images without edits, versus 76.08--89.09% for competitor methods.
+
+## 
 
 ## ✨ Highlights
 
@@ -62,12 +64,6 @@ By providing varying local details in the text, subjects with different visual c
 |                            Input                             |                     CannyEdit (output 1)                     |                     CannyEdit (output 2)                     |                     CannyEdit (output 3)                     |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_1.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_2.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_3.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_4.png" width="200"> |
-
----
-
-## Abstract
-
-Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by leveraging the generative priors of foundation models. However, existing methods struggle to balance text adherence in edited regions, context fidelity in unedited areas, and seamless integration of edits. We introduce **_CannyEdit_**, a novel training-free framework that addresses these challenges through two key innovations: (1) **_Selective Canny Control_**, which masks the structural guidance of Canny ControlNet in user-specified editable regions while strictly preserving the source image’s details in unedited areas via inversion-phase ControlNet information retention. This enables precise, text-driven edits without compromising contextual integrity. (2) **_Dual-Prompt Guidance_**, which combines local prompts for object-specific edits with a global target prompt to maintain coherent scene interactions. On real-world image editing tasks (addition, replacement, removal), CannyEdit outperforms prior methods like KV-Edit, achieving a 2.93%--10.49% improvement in the balance of text adherence and context fidelity. In terms of editing seamlessness, user studies reveal only 49.2% of general users and 42.0% of AIGC experts identified CannyEdit's results as AI-edited when paired with real images without edits, versus 76.08--89.09% for competitor methods.
 
 ---
 
