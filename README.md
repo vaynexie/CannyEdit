@@ -9,6 +9,7 @@
 Weiyan Xie*, Han Gao*, Didan Deng*, Kaican Li, April Hua Liu, Yongxiang Huang, Nevin L. Zhang
 
 <small><i>*Indicates Equal Contribution</i></small>
+
 <small><i>Contact: wxieai@cse.ust.hk</i></small>
 
 ### Affiliations
