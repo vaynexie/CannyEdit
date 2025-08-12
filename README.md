@@ -1,6 +1,6 @@
 # CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing
 
-**[Project Page](https://vaynexie.github.io/CannyEdit/) | [arXiv (Coming Soon)]() | [Code (Coming Soon)]() | [Demo (Coming Soon)]()**
+**[Project Page](https://vaynexie.github.io/CannyEdit/) | [arXiv](https://arxiv.org/pdf/2508.06937) | [Code (Coming Soon)]() | [Demo (Coming Soon)]()**
 
 ---
 
@@ -9,6 +9,7 @@
 Weiyan Xie*, Han Gao*, Didan Deng*, Kaican Li, April Hua Liu, Yongxiang Huang, Nevin L. Zhang
 
 <small><i>*Indicates Equal Contribution</i></small>
+<small><i>Contact: wxieai@cse.ust.hk</i></small>
 
 ### Affiliations
 
@@ -74,7 +75,7 @@ If you find our work useful, please consider citing:
 @article{xie2025canny,
   title={CannyEdit: Selective Canny Control and Dual-Prompt Guidance for Training-free Image Editing},
   author={Xie, Weiyan and Gao, Han and Deng, Didan and Li, Kaican and Liu, April Hua and Huang, Yongxiang and Zhang, Nevin L.},
-  journal={arXiv preprint arXiv:xxx},
+  journal={arXiv preprint arXiv:2508.06937},
   year={2025}
 }
 
