@@ -110,7 +110,16 @@
 
 
 
-
+              <!-- Github link -->
+              <span class="link-block">
+                <a href="https://github.com/mindspore-lab/mindone/tree/master/examples/canny_edit" target="_blank"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                    <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code (MindSpore)</span>
+                </a>
+              </span>
 
               <!-- Github link -->
               <span class="link-block">
@@ -119,7 +128,7 @@
                   <span class="icon">
                     <i class="fab fa-github"></i>
                   </span>
-                  <span>Code (Coming)</span>
+                  <span>Code (PyTorch)</span>
                 </a>
               </span>
 
@@ -165,7 +174,7 @@
                   </span> -->
             </div>
           </div>
-          
+
           <div class="button-container">
                 <button class="button-simple" onclick="scrollToSection('typical_editing')">Typical editing tasks</button>
                 <button class="button-simple" onclick="scrollToSection('details_typical_editing')">Details for typical editing tasks</button>
@@ -186,7 +195,7 @@
 <section id="highlights" class="hero is-small is-light">
     <style>
         /* Shared styling for the entire Highlights section */
-        
+
         /* Main title styling */
         .highlight-title-container {
             text-align: center;
@@ -216,14 +225,14 @@
             border-top: 1px solid #e0e0e0;
             padding-top: 3rem;
         }
-        
+
         /* Remove top border and adjust margin for the very first highlight point */
         .highlight-point:first-of-type {
             margin-top: 3rem;
             border-top: none;
             padding-top: 0;
         }
-        
+
         .highlight-point-title {
             font-size: 1.8em;
             font-weight: 700;
@@ -235,12 +244,12 @@
             margin: 0 auto;
             font-size: 1.1em;
         }
-        
+
         /* Styling for the new sub-points in Highlight 3 */
         .highlight-sub-point {
             margin-top: 2.5rem;
         }
-        
+
         .highlight-sub-point-description {
             font-size: 1.1em;
             font-style: italic;
@@ -262,7 +271,7 @@
         .canny-edit-carousel .canny-edit-item {
             display: none; /* Hidden by default */
         }
-        
+
         .canny-edit-carousel .canny-edit-item img {
             width: 100%;
             display: block;
@@ -295,7 +304,7 @@
 
         .canny-edit-carousel .canny-prev { left: 8px; }
         .canny-edit-carousel .canny-next { right: 8px; }
-        
+
         /* Subtitle for Result/Mask overlay */
         .canny-edit-item .overlay-subtitle {
             background-color: rgba(0, 0, 0, 0.7);
@@ -363,7 +372,7 @@
                             </div>
                         </div>
                     </div>
-                
+
                     <!-- Example 1.2 -->
                     <div>
                         <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
@@ -431,7 +440,7 @@
                             </div>
                         </div>
                     </div>
-                
+
                     <!-- Example 1.4 -->
                     <div>
                         <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
@@ -616,7 +625,7 @@
 
             <div class="highlight-point">
                 <h3 class="title is-4 highlight-point-title">3. Precise Local Control</h3>
-                
+
                 <!-- Sub-point a: Control by mask size -->
                 <div class="highlight-sub-point">
                     <p class="highlight-sub-point-description">
@@ -727,10 +736,10 @@
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
-    
+
     <script>
         // This single script handles all carousels on the page.
         document.addEventListener('DOMContentLoaded', () => {
@@ -771,7 +780,7 @@
                 pagination: true,
                 loop: true,
             });
-            
+
             bulmaCarousel.attach('#highlights-carousel-2', {
                 slidesToScroll: 1,
                 slidesToShow: 1, // Shows one set of examples at a time
@@ -800,20 +809,20 @@
         <h2 class="title is-3">Abstract</h2>
         <div class="content has-text-justified">
           <p>
-            Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by 
-            leveraging the generative priors of foundation models. However, existing methods struggle to balance 
-            text adherence in edited regions, context fidelity in unedited areas, and seamless integration of 
-            edits. We introduce <strong><em>CannyEdit</em></strong>, a novel training-free framework that addresses these 
-            challenges through two key innovations: (1) <strong><em>Selective Canny Control</em></strong>, which masks 
-            the structural guidance of Canny ControlNet in user-specified editable regions while strictly 
-            preserving the source image’s details in unedited areas via inversion-phase ControlNet information 
-            retention. This enables precise, text-driven edits without compromising contextual integrity. 
-            (2) <strong><em>Dual-Prompt Guidance</em></strong>, which combines local prompts for object-specific edits 
-            with a global target prompt to maintain coherent scene interactions. On real-world image editing 
-            tasks (addition, replacement, removal), CannyEdit outperforms prior methods like KV-Edit, achieving 
-            a 2.93%–10.49% improvement in the balance of text adherence and context fidelity. In terms of 
-            editing seamlessness, user studies reveal only 49.2% of general users and 42.0% of AIGC experts 
-            identified CannyEdit's results as AI-edited when paired with real images without edits, versus 
+            Recent advances in text-to-image (T2I) models have enabled training-free regional image editing by
+            leveraging the generative priors of foundation models. However, existing methods struggle to balance
+            text adherence in edited regions, context fidelity in unedited areas, and seamless integration of
+            edits. We introduce <strong><em>CannyEdit</em></strong>, a novel training-free framework that addresses these
+            challenges through two key innovations: (1) <strong><em>Selective Canny Control</em></strong>, which masks
+            the structural guidance of Canny ControlNet in user-specified editable regions while strictly
+            preserving the source image’s details in unedited areas via inversion-phase ControlNet information
+            retention. This enables precise, text-driven edits without compromising contextual integrity.
+            (2) <strong><em>Dual-Prompt Guidance</em></strong>, which combines local prompts for object-specific edits
+            with a global target prompt to maintain coherent scene interactions. On real-world image editing
+            tasks (addition, replacement, removal), CannyEdit outperforms prior methods like KV-Edit, achieving
+            a 2.93%–10.49% improvement in the balance of text adherence and context fidelity. In terms of
+            editing seamlessness, user studies reveal only 49.2% of general users and 42.0% of AIGC experts
+            identified CannyEdit's results as AI-edited when paired with real images without edits, versus
             76.08–89.09% for competitor methods.
           </p>
         </div>
@@ -889,7 +898,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Remove</strong> the umbrellas.
                     </h4>
@@ -912,7 +921,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div class="item">
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Add</strong> a person running on the street.
@@ -935,7 +944,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Add</strong> a baseball catcher on the field.
                     </h4>
@@ -957,7 +966,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">GPT-4o</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Replace</strong> the pepper with three apples.
                     </h4>
@@ -1043,7 +1052,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (ours)</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Remove</strong> the umbrellas.
                     </h4>
@@ -1070,7 +1079,7 @@
                         </div>
                     </div>
                 </div>
-    
+
                 <div class="item">
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Add</strong> a person running on the street.
@@ -1096,7 +1105,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (ours)</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Add</strong> a baseball catcher on the field.
                     </h4>
@@ -1121,7 +1130,7 @@
                             <h4 style="font-size: 16px;" class="subtitle has-text-centered">CannyEdit (ours)</h4>
                         </div>
                     </div>
-    
+
                     <h4 style="font-size: 16px; margin-bottom: 2px;" class="subtitle has-text-centered">
                         <strong>Replace</strong> the pepper with three apples.
                     </h4>
@@ -1194,7 +1203,7 @@
                                     the man with a woman.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1208,7 +1217,7 @@
                                     the dog with a boy.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1223,14 +1232,14 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-    
+
                     </div>
                 </div>
-                
+
                 <div class="item">
                     <!-- Your image here -->
                     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1244,7 +1253,7 @@
                                     the male player with a female player.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1259,7 +1268,7 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-                        
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1273,7 +1282,7 @@
                                      a hat to the table with flowers.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1330,7 +1339,7 @@
                                     the cartoon boy to a cartoon girl.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1344,7 +1353,7 @@
                                     the bunny to a pig.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1358,7 +1367,7 @@
                                     the rat to a pig.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1372,7 +1381,7 @@
                                     the white tiger to a white cat.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1387,14 +1396,14 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-    
+
                     </div>
                 </div>
-                
+
                 <div class="item">
                     <!-- Your image here -->
                     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1408,7 +1417,7 @@
                                     the teacup to a cake.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1423,7 +1432,7 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-                        
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1437,7 +1446,7 @@
                                      cover the table with food.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1451,7 +1460,7 @@
                                     fill the seats on the right with audience members.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1465,7 +1474,7 @@
                                     make the sky cloudy.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1479,7 +1488,7 @@
                                     change the cloudy sky to a blue sky with white clouds.</h4>
                             </div>
                         </div>
-    
+
                     </div>
                 </div>
             </div>
@@ -1522,7 +1531,7 @@
                                     a boy + <strong>Add</strong> a girl.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1536,7 +1545,7 @@
                                     a woman + <strong>Add</strong> another woman talking with a traffic officer.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1551,14 +1560,14 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-    
+
                     </div>
                 </div>
-                
+
                 <div class="item">
                     <!-- Your image here -->
                     <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1572,7 +1581,7 @@
                                     the man with a woman + <strong>Add</strong> a child.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1587,7 +1596,7 @@
                             </div>
                         </div>
                         <!-- Additional div blocks for more pairs of images can be added here -->
-                        
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1601,7 +1610,7 @@
                                      the dog with a cat + <strong>Add</strong> a man standing on the roof.</h4>
                             </div>
                         </div>
-    
+
                         <div style="flex: 1 1 calc(50% - 20px);">
                             <div style="display: flex; flex-direction: column;">
                                 <div
@@ -1615,7 +1624,7 @@
                                     a boy + <strong>Add</strong> a girl.</h4>
                             </div>
                         </div>
-    
+
                     </div>
                 </div>
             </div>
@@ -1684,7 +1693,7 @@
             You are free to borrow the of this website, we just ask that you link back to this page in the footer. <br> This website is licensed under a <a rel="license"  href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
             Commons Attribution-ShareAlike 4.0 International License</a>.
           </p>
-    
+
         </div>
       </div>
     </div>
@@ -1707,11 +1716,3 @@
 
 </body>
 </html>
-
-
-
-
-
-
-
-
