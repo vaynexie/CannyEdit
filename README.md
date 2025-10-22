@@ -8,13 +8,13 @@
 
 Weiyan Xie*, Han Gao*, Didan Deng*, Kaican Li, April Hua Liu, Yongxiang Huang, Nevin L. Zhang
 
+Huawei Hong Kong AI Framework & Data Technologies Lab, HKUST, SUFE
+
 <small><i>*Indicates Equal Contribution</i></small>
 
 <small><i>Contact: wxieai@cse.ust.hk</i></small>
 
-### Affiliations
 
-Huawei Hong Kong AI Framework & Data Technologies Lab, The Hong Kong University of Science and Technology, Shanghai University of Finance and Economics
 
 ---
 
