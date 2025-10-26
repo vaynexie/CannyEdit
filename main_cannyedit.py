@@ -84,7 +84,7 @@ def create_argparser():
         "--height", type=int, default=768, help="The height for generated image"
     )
     parser.add_argument(
-        "--image_whratio_unchange", action='store_true',
+        "--preserve_aspect_ratio", action='store_true',
         help="In default we use square input/output, set this to True if you wish to keep the original image width/height ratio unchanged."
     )
     parser.add_argument(
@@ -423,8 +423,8 @@ def main(args):
     os.makedirs("./mask_temp/", exist_ok=True)
 
 
-    ## args.image_whratio_unchange == True: if true, keep the image height/width ratio unchanged
-    if args.image_whratio_unchange == True:
+    ## args.preserve_aspect_ratio == True: if true, keep the image height/width ratio unchanged
+    if args.preserve_aspect_ratio == True:
         widtho, heighto = image.size
         maxone = np.max([widtho, heighto])
         if maxone == widtho:

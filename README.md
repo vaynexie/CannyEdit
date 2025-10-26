@@ -17,8 +17,18 @@ Huawei Hong Kong AI Framework & Data Technologies Lab, HKUST, SUFE
 
 
 ---
+## 🔥 CannyEdit can do:
 
+**CannyEdit** offers advanced image editing features with both precision and flexibility:
 
+- **Region-Based Editing:** Allows precise control over location and size using binary masks.
+
+- **Beyond Traditional Region-Based Editing:**
+  - **Multi-Region Editing:** Enables multiple distinct edits in a single generation pass.
+  - **Flexible Guidance:** Performs well with imprecise spatial cues such as rough masks or single-point hints, while maintaining high contextual fidelity.
+  - **Zero-Shot VLM Integration:** Combines a Vision-Language Model (VLM) for high-level reasoning with CannyEdit for accurate execution, enabling complex and goal-oriented image edits.
+
+---
 ## 🛠️ To Use CannyEdit
 ### Environment setup
 ```bash
@@ -96,57 +106,53 @@ xclock
 | Object Addition  <br>with Mask Refinement <br> (point hint) | <img src="./examples/girl.jpeg" width="150"> | Point Inferred by InternVL3 | <img src="./results/girl_add_monkey_auto_inferpoint/result_0.png" width="150"> | <img src="./results/girl_add_monkey_auto_inferpoint/result_0_refine.png" width="150"> | bash ./testcases/add_monkey_point_autoinfer.sh |
 | Object Addition  <br>with Mask Refinement <br> (point hints) | <img src="./examples/bager1.png" width="150"> | Points Inferred by InternVL3 | <img src="./results/bager_add_manwoman_auto_inferpoint/result_0.png" width="150"> | <img src="./results/bager_add_manwoman_auto_inferpoint/result_0_refine.png" width="150"> | bash ./testcases/add_manwoman_point_autoinfer.sh |
 
-### Explanations to the parameters [TODO]
+### Explanations to key parameters in CannyEdit
+```python
+--image_path: Path to the image to be edited. (Required)
 
-### More test cases [TODO]
+--save_location: Where to save the edited image. Default: './results/'.
+  - If a folder is provided, the edited image will be saved inside that folder.
+  - If a file path ending with '.png' is provided, the image will be saved to that exact path.
+
+--width, --height: Output image width and height. Default: 768 for both.
+
+--preserve_aspect_ratio: Preserve the original image’s width/height ratio.
+  Default: False (uses square input/output).
+
+--prompt_local: Text prompt describing the local edit region. Use '[remove]' to remove objects
+  in the selected region. If omitted, the program will prompt you to enter it.
+
+--prompt_source: Text prompt describing the source image. If omitted, Qwen2.5-VL-7B-Instruct
+  will be used to generate it.
+
+--prompt_target: Text prompt describing the desired outcome of the edited image. If omitted,
+  Qwen2.5-VL-7B-Instruct will be used to generate it.
+  Note: The VLM currently supports target prompts only for object addition and removal.
+  For other types of edits, it’s recommended to provide this prompt explicitly.
+
+--mask_input: Path(s) to binary mask(s) or tuple(s) of point(s) indicating where to edit.
+  Points should be in the format (x,y) with values normalized to [0,1], e.g., "(0.4,0.6)".
+  If omitted, an interactive tool will prompt you to provide the location.
+
+--self_infer_point: When set (action='store_true'), and no add-location is provided,
+  InternVL3-14B will infer point hints for object addition.
+
+--dilate_mask: Dilate the mask region. (action='store_true')
+
+--refine_mask: When set (action='store_true'), CannyEdit runs in two stages. First, it uses the initial user-provided edit location; then it displays the current editing result, prompts users to select refined masks, and runs CannyEdit again using those refined masks. Useful for object addition.
+
+--auto_mask_refine: When used together (action='store_true') with --refine_location, CannyEdit runs in two stages. First, it uses the user-provided edit location; then it automatically refines the location with more precise masks and runs again. Useful for object addition
+
+--multi_run: When set (action='store_true'), enables multiple effective editing passes.
+  Generation latents are cached; after the first pass, you’ll be prompted for the next edits.
+
+```
+
+### Minimum GPU Requirement
+
+To run CannyEdit, a GPU with at least 50 GB of VRAM is recommended.
 
 
-## ✨ Highlights
-
-### 1. High-Quality Region-Specific Image Edits
-Our method enables high-quality region-specific image edits, especially useful in cases where SOTA free-form image editing methods fail to ground edits accurately.
-
-**Prompt:** *Add a cyclist riding the bike, wearing a green and yellow jersey and sunglasses.*
-
-|                            Input                             |                       CannyEdit (ours)                       |                     FLUX.1 Kontext [dev]                     |                            GPT-4o                            |                            Doubao                            |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/4.jpeg" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/4_C.jpeg" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/4_kontext.jpeg" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/4_gpt.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/4_doubao.png" width="200"> |
-
----
-
-### 2. Support Multiple Edits at One Pass
-Our methods can support edits on multiple user-specific regions at one generation pass when multiple masks are given.
-
-**Prompt:** *Add a slide + Add a group of elderly men and women practicing Tai Chi.*
-
-|                            Input                             |                       CannyEdit (ours)                       |                     FLUX.1 Kontext [dev]                     |                            GPT-4o                            |                            Doubao                            |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/b1.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/b1_c.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/b1_context.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/b1_4o.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/b1_dou.png" width="200"> |
-
-
----
-
-### 3. Precise Local Control
-
-#### a. Control by mask size
-By specifying the mask size, our method effectively controls the size of the generated subject.
-
-**Prompt:** *Add a sofa + Add a painting on the wall.*
-
-|                            Input                             |                 CannyEdit <br />(small mask)                 |                CannyEdit <br />(medium mask)                 |                 CannyEdit <br />(large mask)                 |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/33_1.jpg" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/33_2.jpg" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/33_3.jpg" width="170"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/33_4.jpg" width="200"> |
-
-#### b. Control by text details
-By providing varying local details in the text, subjects with different visual characteristics are generated.
-
-**Prompt:** *Add a woman customer reading a menu + Add a waiter ready to serve.*
-
-|                            Input                             |                     CannyEdit (output 1)                     |                     CannyEdit (output 2)                     |                     CannyEdit (output 3)                     |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_1.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_2.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_3.png" width="200"> | <img src="https://vaynexie.github.io/CannyEdit/static/figures/highlights/55_4.png" width="200"> |
-
----
 
 ## BibTeX
 

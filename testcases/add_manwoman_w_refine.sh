@@ -1,6 +1,6 @@
 CUDA_VISIBLE_DEVICES=0 python main_cannyedit.py \
 --image_path './examples/bager1.png' \
---image_whratio_unchange \
+--preserve_aspect_ratio \
 --save_folder './results/bager_add_manwoman' \
 --prompt_local "a man customer reading menu." \
 --prompt_local "a woman waiter ready to serve." \
