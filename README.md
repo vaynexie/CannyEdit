@@ -14,7 +14,7 @@ Huawei Hong Kong AI Framework & Data Technologies Lab, HKUST, SUFE
 
 <small><i>Contact: wxieai@cse.ust.hk</i></small>
 
-⭐  If you find our work helpful, please consider giving us a ⭐ and citing our paper
+⭐  If you find our work helpful, please consider giving us a ⭐ and citing our paper.
 
 
 ---
@@ -167,4 +167,5 @@ If you find our work useful, please consider citing:
 }
 
 ```
+
 
